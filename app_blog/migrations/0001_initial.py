@@ -41,6 +41,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=150)),
                 ('description', models.TextField(null=True)),
                 ('slug', models.SlugField(unique=True)),
+                ('parent_category', models.ForeignKey('self', related_name='sub_category', on_delete=models.SET_NULL, null=True)),
             ],
             options={
                 'permissions': (('edit_category', 'Can edit a category'), ('del_category', 'Can delete a category'), ('view_category_forum', 'Can view Forum'), ('view_category_all_wo_c_f', 'Can view all category w/o Conseillers&Forum'), ('view_category_all', 'Can view all category')),

@@ -17,6 +17,9 @@ class Category(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(null=True)
     slug = models.SlugField(null=False, unique=True)
+    parent_category = models.ForeignKey(
+        'self', related_name='sub_category',
+        on_delete=models.SET_NULL, null=True)
 
     def get_absolute_url(self):
         return reverse('category', args=(self.slug,))

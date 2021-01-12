@@ -126,3 +126,56 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+##############################################
+# Seezlangues settings : app_blog            #
+##############################################
+APP_BLOG_CATEGORY_HIERARCHY = [
+    {
+        "name": 'Langues',
+        "group": None,
+        "sub_cat": [
+            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
+                ['Anglais', None, None],
+                ['Espagnol', None, None],
+                ['Allemand', None, None],
+                ['Italien', None, None],
+                ['Russe', None, None]]
+            ]
+    }, {
+        "name": 'Ressources',
+        "group": None,
+        "sub_cat": [
+            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
+                ['Ressources non didactisées libres', None, None],
+                ['Ressources didactisées', "Contributeur", None],
+                ['Productions des Élèves', "Auteur", None]]
+            ]
+    }, {
+        "name": 'Outils Numériques',
+        "group": None,
+        "sub_cat": [
+            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
+                ['Le Numériques', None, None],
+                ['Tutoriels', "Auteur", None]]
+            ]
+    }, {
+        "name": 'Salle des professeurs',
+        "group": None,
+        "sub_cat": [
+            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
+                ['Référentiels', None, None],
+                ['IPR', 'Expert', None],
+                ["Forum", "Auteur", None],
+                ["Conseiller", "Conseiller", None]]
+            ]
+    }, {
+        "name": 'Agenda',
+        "group": None,
+        "sub_cat": [
+            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
+                ['Formations', "Contributeur", None],
+                ['Évènements', None, None]]
+            ]
+    }
+]
