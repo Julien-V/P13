@@ -45,7 +45,7 @@ class Category(models.Model):
 
 class Article(models.Model):
     title = models.CharField(max_length=300)
-    description = models.TextField()
+    description = models.TextField(null=True)
     content = models.TextField()
     writer = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(editable=False)
