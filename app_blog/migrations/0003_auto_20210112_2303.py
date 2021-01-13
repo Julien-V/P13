@@ -10,6 +10,10 @@ import uuid
 
 
 class CreateCategories:
+    """This class creates categories/sub_categories
+    from a list of category (dict) in
+    settings.APP_BLOG_CATEGORY_HIERARCHY.
+    """
     def __init__(self, apps, schema_editor):
         self.app = apps
         self.schema_editor = schema_editor
@@ -20,6 +24,52 @@ class CreateCategories:
         self.CategoryGroup = apps.get_model("app_blog", "CategoryGroup")
 
     def _make_cat_list(self):
+        """This method recursively extracts all nested dict in
+            settings.APP_BLOG_CATEGORY_HIERARCHY and return a list of
+            dicts (category) and tuples (subcategory).
+        From :
+        [
+            {
+                "name": <str:cat1_name>,
+                "group": <str:cat1_group>,
+                "sub_cat": [
+                    {
+                        "name": <str:cat1a_name>,
+                        "group": <str:cat1a_group>,
+                        "sub_cat": [cat1aa]
+                    }
+                ]
+            },
+        ]
+        Return :
+        [
+            {
+                "name": <str:cat1_name>,
+                "group": <str:cat1_group>,
+                "sub_cat": [
+                    {
+                        "name": <str:cat1a_name>,
+                        "group": <str:cat1a_group>,
+                        "sub_cat": [cat1aa]
+                    }
+                ]
+            }, (
+                {
+                    "name": <str:cat1a_name>,
+                    "group": <str:cat1a_group>,
+                    "sub_cat": [cat1aa]
+                }, <str:cat1_name>,
+            ), (
+                {
+                    "name": <str:cat1aa_name>,
+                    "group": <str:cat1aa_group>,
+                    "sub_cat": None
+                }, <str:cat1a_name>,
+            ),
+
+        ]
+        :return cat_list:
+        """
         cat_list = list()
         cat_dict_list = self.old_cat_list.copy()
         while len(cat_dict_list):
@@ -33,6 +83,13 @@ class CreateCategories:
         return cat_list
 
     def _make_cat(self, name, parent=None):
+        """This method adds a Category in db
+
+        :param name: str, category_name.
+        :param parent: str, parent_category_name, default None.
+
+        :return cat_obj: app_blog.models.Category object
+        """
         # create a Category object with a temporary slug
         cat_obj = self.Category.objects.create(
             name=name,
@@ -58,12 +115,22 @@ class CreateCategories:
         return cat_obj
 
     def _link_cat_group(self, cat, cat_obj):
-        group_name = cat['group']
+        """This method links a Category and a Group
+
+        :param cat: dict(name, group, sub_cat)
+        :param cat_obj: app_blog.models.Category object
+
+        :return cat_group: app_blog.models.CategoryGroup object
+        """
+        group_name = cat['group']  # get group name
         try:
+            # get Group object:
             group_obj = self.Group.objects.get(name=group_name)
+            # link group_obj and cat_obj in CategoryGroup
             cat_group = self.CategoryGroup.objects.create(
                 category=cat_obj,
                 group=group_obj)
+            # save
             cat_group.save()
         except self.Group.DoesNotExist:
             print(f"[!] Group {group_name} DoesNotExist ({cat})")
@@ -74,11 +141,12 @@ class CreateCategories:
         for cat in self.cat_list:
             cat_temp = cat
             parent = None
-            if isinstance(cat, tuple):
+            if isinstance(cat, tuple):  # cat is a sub_category
                 cat_temp = cat[0]
                 parent = cat[1]
             cat_obj = self._make_cat(cat_temp['name'], parent)
             if cat_temp['group'] is not None:
+                # add to CategoryGroup
                 self._link_cat_group(cat_temp, cat_obj)
         return self.cat_list
 

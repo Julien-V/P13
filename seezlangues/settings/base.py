@@ -130,6 +130,13 @@ STATIC_URL = '/static/'
 ##############################################
 # Seezlangues settings : app_blog            #
 ##############################################
+
+""" a_category = {
+    "name": <str:cat_name>,
+    "group": <str:cat_group> or None
+    "sub_cat": list(dict) or None
+}
+"""
 APP_BLOG_CATEGORY_HIERARCHY = [
     {
         "name": 'Langues',
@@ -149,14 +156,14 @@ APP_BLOG_CATEGORY_HIERARCHY = [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
                 ['Ressources non didactisées libres', None, None],
                 ['Ressources didactisées', "Contributeur", None],
-                ['Productions des Élèves', "Auteur", None]]
+                ["Productions d'Élèves", "Auteur", None]]
             ]
     }, {
         "name": 'Outils Numériques',
         "group": None,
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
-                ['Le Numériques', None, None],
+                ['Le Numérique', None, None],
                 ['Tutoriels', "Auteur", None]]
             ]
     }, {
@@ -165,7 +172,7 @@ APP_BLOG_CATEGORY_HIERARCHY = [
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
                 ['Référentiels', None, None],
-                ['IPR', 'Expert', None],
+                ["Paroles d'IPR", 'Expert', None],
                 ["Forum", "Auteur", None],
                 ["Conseiller", "Conseiller", None]]
             ]

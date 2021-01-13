@@ -34,6 +34,7 @@ def test_group(name):
     "cat",
     settings.APP_BLOG_CATEGORY_HIERARCHY.copy())
 def test_category(cat):
+    """Tests categories creation"""
     name = cat['name']
     sub_cat = cat['sub_cat']
     try:
