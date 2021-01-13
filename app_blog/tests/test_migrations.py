@@ -4,6 +4,9 @@
 import pytest
 
 from django.contrib.auth.models import Group
+from django.conf import settings
+
+from app_blog.models import Category
 
 
 @pytest.mark.django_db
@@ -24,3 +27,19 @@ def test_group(name):
     except Group.DoesNotExist:
         pytest.fail(f"{name} DoesNotExist")
     assert group.name == name
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "cat",
+    settings.APP_BLOG_CATEGORY_HIERARCHY.copy())
+def test_category(cat):
+    """Tests categories creation"""
+    name = cat['name']
+    sub_cat = cat['sub_cat']
+    try:
+        cat_obj = Category.objects.get(name=name)
+    except Category.DoesNotExist:
+        pytest.fail(f"{name} DoesNotExist")
+    assert cat_obj.name == name
+    assert len(sub_cat) == len(cat_obj.sub_category.all())
