@@ -16,8 +16,9 @@ Including another URLconf
 
 import os
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 urlpatterns = [
     path(os.getenv('SECRET_ADMIN_URL')+'/admin/', admin.site.urls),
+    path('', include("app_blog.urls"))
 ]
