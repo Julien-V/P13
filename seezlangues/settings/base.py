@@ -172,7 +172,7 @@ APP_BLOG_CATEGORY_HIERARCHY = [
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
                 ['Référentiels', None, None],
-                ["Paroles d'IPR", 'Expert', None],
+                ["Paroles d'IPR", 'Auteur', None],
                 ["Forum", "Auteur", None],
                 ["Conseiller", "Conseiller", None]]
             ]
