@@ -7,4 +7,5 @@ from .import views
 
 urlpatterns = [
     path('', views.index, name="home"),
+    path('get_category', views.get_category, name="get_category")
 ]
