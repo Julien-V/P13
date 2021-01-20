@@ -1,4 +1,4 @@
-#!/usr/bin/python3z
+#!/usr/bin/python3
 # coding : utf-8
 
 from django.urls import path
@@ -7,5 +7,5 @@ from .import views
 
 urlpatterns = [
     path('', views.index, name="home"),
-    path('get_category', views.get_category, name="get_category")
+    path('category/<slug:slug>/', views.list_by_category, name="category")
 ]

@@ -92,9 +92,6 @@ header.masthead > div.container-fluid {
   font-family: "Forte";
 }
 
-/* https://mdbootstrap.com/docs/standard/components/carousel/ */
-
-
 /*section*/
 .page-section {
   padding: 0 0;
@@ -107,7 +104,7 @@ header.masthead > div.container-fluid {
 
 [id^=section-panel-]:hover {
   overflow-x: overlay;
-  box-shadow: 0 12px 16px 0 rgba(0,0,0,0.34),0 17px 50px 0 rgba(0,0,0,0.19);
+  box-shadow: 16px 12px 16px 12px rgba(0,0,0,0.34), 50px 17px 50px 17px rgba(0,0,0,0.19);
 }
 #section-panel-lang, #section-panel-tools {
   background-color: var(--color-yellow);

@@ -10,12 +10,3 @@ window.POST = function(url, data) {
 window.GET = function(url) {
 	return fetch(url)
 }
-
-
-var navbarDropdownItemList = document.querySelectorAll("#navbarSupportedContent > ul.navbar-nav > li.dropdown > ul.dropdown-menu > li > a");
-
-navbarDropdownItemList.forEach(function(elem) {
-    elem.addEventListener("click", function() {
-		POST("/get_category", {name: elem.name});
-    });
-});
