@@ -61,11 +61,31 @@ header.masthead > div.container-fluid {
   height: 80%;
   margin-top: 5%;
   right: 7%;
+}
+
+#carousel-home {
   border-style: solid;
   border-width: thick;
   border-radius: 3%;
   border-color: var(--color-purple);
-  background-color: white;
+  background-color: black;
+}
+
+[id^=carousel-home-caption-] {
+  opacity: 0;
+}
+
+/*.carousel-item:hover .carousel-item > img {
+  opacity: 0.5;
+}*/
+
+.carousel-item:hover .carousel-caption {
+  background-color: rgba(0, 0, 0, 0.8);
+  opacity: 1;
+}
+
+#carousel-home-inner {
+  border-radius: 3%;
 }
 
 #img-div {
