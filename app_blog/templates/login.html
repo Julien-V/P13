@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block page_content %}
+<main class="form-signin text-center w-100 h-100" id="main-signin">
+  	<form action="/login" method="POST">
+  		{% csrf_token %}
+    	<img class="mb-4" src="/static/assets/logo.svg" alt="" width="172" height="157">
+    	<h1 class="h3 mb-3 fw-normal">Connexion</h1>
+    	{% if error %}
+		<p><strong>Utilisateur inconnu ou mauvais de mot de passe.</strong></p>
+		{% endif %}
+    	<label for="username_email" class="visually-hidden">Adresse email</label>
+    	<input type="text" name="username_email" id="username_email" class="form-control" placeholder="Adresse Email" required="" autofocus="">
+    	<label for="password" class="visually-hidden">Mot de passe</label>
+    	<input type="password" name="password" id="password" class="form-control" placeholder="Mot de passe" required="">
+    	<!--<div class="checkbox mb-3">
+      		<label>
+        		<input type="checkbox" value="remember-me"> Se souvenir de moi
+      		</label>
+    	</div>-->
+    	<button class="w-100 btn btn-primary btn-purple" type="submit">Se connecter</button>
+  	</form>
+</main>
+{% endblock %}

@@ -162,3 +162,10 @@ header.masthead > div.container-fluid {
     transform: perspective(3px) translateZ(10);
   }
 }*/
+
+/* /login */
+#main-signin {
+  padding-top: 10%;
+  max-width: 330px;
+  margin: auto;
+}

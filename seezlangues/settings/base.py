@@ -127,6 +127,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+LOGIN_URL = '/login'
+
 ##############################################
 # Seezlangues settings : app_blog            #
 ##############################################
