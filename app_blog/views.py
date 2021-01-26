@@ -34,7 +34,7 @@ def navbar_init():
 
 def index(req):
     context = dict()
-    context = context | navbar_init()
+    context = {**context, **navbar_init()}
     return render(req, 'index.html', context)
 
 
@@ -54,7 +54,12 @@ def log_in(req):
                 error = True
     else:
         form = ConnectionForm()
-    return render(req, 'login.html', locals())
+    context = {
+        "error": error,
+        "form": form
+    }
+    context = {**context, **navbar_init()}
+    return render(req, 'login.html', context)
 
 
 @login_required
