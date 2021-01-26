@@ -3,17 +3,43 @@
 <header class="cathead" id="cathead">
 	<div class="container">
 		<div class="row">
-			<div class="col-8">
-				<h1>{{ category.name }}</h1>
+			<div class="col-8 text-center">
+				<h2>{{ category.name }}</h2>
+				{% if category.description %}
+				<h4>Description</h4>
+				<p>{{ category.description }}</p>
+				{% endif %}
+				<!-- path -->
+				<p>{{ category.parent_category.name }} > {{ category.name }}</p>
+				{% for cat in category.sub_category.all %}
+				<a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+				{% endfor %}
 			</div>
 		</div>
 	</div>
 </header>
 <section class="page-section">
 	<div class="container">
+		{% if articles %}
+		{% for article in articles %}
 		<div class="row">
-			<div class="col-lg-8"></div>
+			<div class="col-lg-8" id="article-{{ article.id }}">
+				<h4>{{ article.title }}</h4>
+				{% if article.is_anonymous %}
+				<p> par Anonyme</p>
+				{% else %}
+				<p> par {{ article.writer }}</p>
+				<p>Le {{ article.added_timestamp }}</p>
+				{% endif %}
+			</div>
 		</div>
+		{% endfor %}
+		{% else %}
+		<div class="row text-center">
+			<div class="col-lg-8">
+				<h3>Aucun article</h3>
+			</div>
+		{% endif %}
 	</div>
 </section>
 {% endblock %}

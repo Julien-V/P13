@@ -30,6 +30,7 @@ MIDDLEWARE = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'seezlangues'
+        'NAME': 'seezlangues',
+        'USER': 'julien'
     }
 }

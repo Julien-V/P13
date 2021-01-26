@@ -9,7 +9,11 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render, redirect, reverse
 
 from app_blog.forms import ConnectionForm
-from app_blog.models import Category
+
+from app_blog.models import ArticleCategory, Category, CategoryGroup
+
+from app_blog.utils import has_perm_list
+from app_blog.utils import has_group_perm
 
 
 def navbar_init():
@@ -56,13 +60,39 @@ def log_in(req):
 @login_required
 def list_by_category(req, slug):
     try:
+        # get cat
         cat = Category.objects.get(slug=slug)
+        # get articles
+        articles = ArticleCategory.objects.filter(category=cat)
+        if not len(articles):
+            raise ArticleCategory.DoesNotExist
+        articles = [elem.article for elem in articles]
     except Category.DoesNotExist:
+        cat = None
         return HttpResponseNotFound()
+    except ArticleCategory.DoesNotExist:
+        articles = None
+
+    try:
+        # get cat_group
+        cat_group = CategoryGroup.objects.get(category=cat)
+        if not has_group_perm(req, cat_group.group):
+            # if user not in cat_group.group
+            return HttpResponseNotFound()
+    except CategoryGroup.DoesNotExist:
+        cat_group = None
+
+    if not has_perm_list(req, ["view_article"]):
+        if has_perm_list(req, ["view_article_public"]):
+            if articles is not None:
+                articles = [x for x in articles if x.is_public]
+        else:
+            return redirect("/")
     context = {
+        "articles": articles,
         "category": cat
     }
-    context = context | navbar_init()
+    context = {**context, **navbar_init()}
     return render(req, 'list_by_category.html', context)
 
 

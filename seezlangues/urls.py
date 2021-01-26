@@ -15,8 +15,16 @@ Including another URLconf
 """
 
 import os
+import dotenv
+
 from django.contrib import admin
 from django.urls import include, path
+
+# pytest doesn't seem to get SECRET_ADMIN_URL from .env 
+# so we load it from here as well
+dotenv.load_dotenv(
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+)
 
 urlpatterns = [
     path(os.getenv('SECRET_ADMIN_URL')+'/admin/', admin.site.urls),
