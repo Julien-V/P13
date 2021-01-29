@@ -13,39 +13,6 @@ from django.template.defaultfilters import slugify
 import uuid
 
 
-class Category(models.Model):
-    name = models.CharField(max_length=150)
-    description = models.TextField(null=True)
-    slug = models.SlugField(null=False, unique=True)
-    parent_category = models.ForeignKey(
-        'self', related_name='sub_category',
-        on_delete=models.SET_NULL, null=True)
-
-    def get_absolute_url(self):
-        return reverse('category', args=(self.slug,))
-
-    def save(self, *args, **kwargs):
-        # temp slug
-        if len(self.slug) < 1:
-            self.slug = str(uuid.uuid4())
-            super().save(*args, **kwargs)
-            self.slug = f"{slugify(self.name)}-{self.id}"
-            return super().save(*args, **kwargs)
-        else:
-            return super().save(*args, **kwargs)
-        return super().save(*args, **kwargs)
-
-    class Meta:
-        permissions = (
-            ("edit_category", "Can edit a category"),
-            ("del_category", "Can delete a category"),
-            ("view_category_forum", "Can view Forum"),
-            ("view_category_all_wo_c_f",
-                "Can view all category w/o Conseillers&Forum"),
-            ("view_category_all", "Can view all category")
-        )
-
-
 class Article(models.Model):
     title = models.CharField(max_length=300)
     description = models.TextField(null=True)
@@ -86,6 +53,40 @@ class Article(models.Model):
         )
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.TextField(null=True)
+    slug = models.SlugField(null=False, unique=True)
+    parent_category = models.ForeignKey(
+        'self', related_name='sub_category',
+        on_delete=models.SET_NULL, null=True)
+    articles = models.ManyToManyField(Article)
+
+    def get_absolute_url(self):
+        return reverse('category', args=(self.slug,))
+
+    def save(self, *args, **kwargs):
+        # temp slug
+        if len(self.slug) < 1:
+            self.slug = str(uuid.uuid4())
+            super().save(*args, **kwargs)
+            self.slug = f"{slugify(self.name)}-{self.id}"
+            return super().save(*args, **kwargs)
+        else:
+            return super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        permissions = (
+            ("edit_category", "Can edit a category"),
+            ("del_category", "Can delete a category"),
+            ("view_category_forum", "Can view Forum"),
+            ("view_category_all_wo_c_f",
+                "Can view all category w/o Conseillers&Forum"),
+            ("view_category_all", "Can view all category")
+        )
+
+
 class Comment(models.Model):
     content = models.TextField()
     original_content = models.TextField(null=True)
@@ -106,13 +107,6 @@ class Comment(models.Model):
             ("del_user_comment", "Can delete its own comments"),
             ("del_users_comment", "Can delete other users' comments")
         )
-
-
-class ArticleCategory(models.Model):
-    article = models.ForeignKey(
-        Article, on_delete=models.CASCADE)
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE)
 
 
 class CategoryGroup(models.Model):

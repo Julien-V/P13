@@ -12,6 +12,9 @@
 	<link rel="stylesheet" type="text/css" href="/static/css/style.css">
 	<!-- Title -->
 	<title>Seezlangues</title>
+	<!-- custom_head -->
+	{% block custom_head %}
+	{% endblock %}
 </head>
 <body>
 	<!-- Navbar -->
@@ -57,13 +60,8 @@
 			    <li class="nav-item active"><a class="nav-link" href="#">Contact</a></li>
   			</ul>
   		</div>
-  		<form class="d-flex">
-  			{% csrf_token %}
-      		<input class="form-control me-2" type="search" placeholder="Recherche" aria-label="Recherche">
-      		<button class="btn btn-primary btn-purple" type="submit"><i class="bi bi-search"></i></button>
-    	</form>
     	{% if user.is_authenticated %}
-    	<p class="navbar-text">{{ user.first_name }}</p>
+    	<a class="btn btn-primary btn-purple" href="/add_article">Ajouter un article</a>
     	<a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
     	<!-- do something here -->
     	{% else %}
@@ -84,5 +82,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 	<!-- Custom JS -->
 	<script src="/static/js/app_blog.js"></script>
+	<!-- Custom JS -->
+	{% block custom_js %}
+	{% endblock %}
 </body>
 </html>

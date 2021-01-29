@@ -6,7 +6,7 @@ import pytest
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 
-from app_blog.models import Article, ArticleCategory, Category
+from app_blog.models import Article, Category
 
 
 @pytest.fixture
@@ -45,7 +45,31 @@ def make_test_users():
 
 
 @pytest.fixture
-def make_test_articles():
+def get_articles_fields():
+    def make_articles_fields(user):
+        article_fields_mod = [
+            {'is_public': True},
+            {'is_public': False},
+            {'is_anonymous': True},
+            {'is_anonymous': False},
+        ]
+        article_fields = {
+            'title': 'test_title',
+            'description': 'test_description',
+            'content': 'test_content',
+            'writer': user,
+        }
+        article_fields_list = list()
+        for fields_mod in article_fields_mod:
+            article_fields_list.append({**article_fields.copy(), **fields_mod})
+        return article_fields_list
+    return make_articles_fields
+
+        
+
+
+@pytest.fixture
+def make_test_articles(get_articles_fields):
     """This fixture adds several articles :
         - is_public = True
         - is_public = False
@@ -69,24 +93,10 @@ def make_test_articles():
     group_obj = Group.objects.get(name="Auteur")
     group_obj.user_set.add(user)
     # add articles
-    article_fields_mod = [
-        {'is_public': True},
-        {'is_public': False},
-        {'is_anonymous': True},
-        {'is_anonymous': False},
-    ]
-    article_fields = {
-        'title': 'test_title',
-        'description': 'test_description',
-        'content': 'test_content',
-        'writer': user,
-    }
-    article_fields_list = list()
-    for fields_mod in article_fields_mod:
-        article_fields_list.append({**article_fields.copy(), **fields_mod})
+    article_fields_list = get_articles_fields(user)
     cat = Category.objects.get(name="Anglais")  # test multiples category
     for fields in article_fields_list:
         article = Article(**fields)
         article.save()
-        art_cat = ArticleCategory(article=article, category=cat)
-        art_cat.save()
+        cat.articles.add(article)
+        cat.save()
