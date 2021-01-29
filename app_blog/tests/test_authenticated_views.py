@@ -12,6 +12,10 @@ from app_blog.models import Article, Category
 
 @pytest.mark.django_db
 def test_list_by_category(client, make_test_articles):
+    """Tests /category/ status_code and number of articles
+    in response.content
+    """
+    # get all articles
     articles = Article.objects.all()
     if not len(articles):
         pytest.fail('no articles')
@@ -43,6 +47,9 @@ def test_list_by_category(client, make_test_articles):
 def test_add_article(
         client, make_test_users, get_articles_fields,
         name, expected_status_code, cat_list, expected_nb_articles):
+    """Tests /add_article status code, articles in db
+    for each group
+    """
     group_name = name.lower()[:4]
     credentials = {
         "username": f"test_{group_name}",
@@ -51,24 +58,34 @@ def test_add_article(
     client.login(**credentials)
     response = client.get(reverse("add_article"))
     assert response.status_code == expected_status_code
+        # login_required
+        # add_article perm
     if response.status_code == 200:
+        # get csrf_token from cookie
         csrf_token = client.cookies['csrftoken'].value
+        # get articles fields from fixture
         articles_fields_list = get_articles_fields(None)
         for article_fields in articles_fields_list:
+            # we don't need 'writer' field
             article_fields.pop('writer')
             if len(cat_list):
                 for cat in cat_list:
                     article_fields[cat] = "on"
+            # add csrf
             article_fields["csrfmiddlewaretoken"] = csrf_token
+            # post request
             response = client.post(reverse("add_article"), article_fields)
+        # get all articles
         articles = Article.objects.all()
         assert len(articles) == expected_nb_articles
         if len(cat_list):
+            # get cat name from cat_list ('subcat-name'-->'name')
             cat_list = [elem.split("-")[1] for elem in cat_list]
             for article in articles:
                 categories = article.category_set.all()
                 cat_validation = {
                     cat.name: True for cat in categories if cat.name in cat_list
                 }
+                # cat name verification
                 assert len(cat_validation) == len(cat_list)
 

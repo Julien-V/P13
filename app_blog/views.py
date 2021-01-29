@@ -65,6 +65,7 @@ def log_in(req):
 
 @login_required
 def list_by_category(req, slug):
+    """This view lists all articles an user can read in a category"""
     try:
         # get cat
         cat = Category.objects.get(slug=slug)
@@ -101,9 +102,11 @@ def list_by_category(req, slug):
 @login_required
 @perm_required(["add_article"])
 def add_article(req):
+    """This view cleans article fields from req.POST
+    and add Article to DB
+    """
     error = False
     if req.method == "POST":
-        print(dict(req.POST))
         form_fields = dict()
         form_fields["cat_list"] = list()
         for key, val in dict(req.POST).items():
@@ -114,20 +117,17 @@ def add_article(req):
             if form_fields[key] in ['on', 'off']:
                 if "cat-" in key:
                     cat_type, cat_name = key.split("-")
-                    print(cat_type)
-                    print(cat_name)
                     form_fields["cat_list"].append(cat_name)
                 else:
                     form_fields[key] = val == "on"
+        # get user
         try:
             user = User.objects.get(username=req.user)
         except User.DoesNotExist:
             print(f"User.DoesNotExist : {req.user}")
             return HttpResponseNotFound()
-        # csrf = form.pop("csrfmiddlewaretoken")
         form_fields["writer"] = user
         cat_dict = {c:None for c in form_fields.pop("cat_list")}
-        print(cat_dict)
         for key in cat_dict.keys():
             try:
                 cat = Category.objects.get(name=key)
@@ -136,15 +136,12 @@ def add_article(req):
                 print(f"Category.DoesNotExist")
                 return HttpResponseNotFound()
         cat_list = [val for key, val in cat_dict.items() if val is not None]
-        print(cat_list)
         form = AddArticleForm(form_fields)
         if form.is_valid():
             article = form.save()
-            print(cat_list)
             for cat in cat_list:
                 cat.articles.add(article)
                 cat.save()
-                print(cat.articles.all())
             # return redirect(article.get_absolute_url())
         else:
             error = True
