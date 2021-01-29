@@ -61,6 +61,7 @@ class Category(models.Model):
         'self', related_name='sub_category',
         on_delete=models.SET_NULL, null=True)
     articles = models.ManyToManyField(Article)
+    groups = models.ManyToManyField(Group)
 
     def get_absolute_url(self):
         return reverse('category', args=(self.slug,))
@@ -107,10 +108,3 @@ class Comment(models.Model):
             ("del_user_comment", "Can delete its own comments"),
             ("del_users_comment", "Can delete other users' comments")
         )
-
-
-class CategoryGroup(models.Model):
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE)
-    group = models.ForeignKey(
-        Group, on_delete=models.CASCADE)

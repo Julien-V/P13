@@ -11,7 +11,7 @@ from django.shortcuts import render, redirect, reverse
 
 from app_blog.forms import ConnectionForm, AddArticleForm
 
-from app_blog.models import Article, Category, CategoryGroup
+from app_blog.models import Article, Category
 
 from app_blog.utils import has_perm_list, perm_required
 from app_blog.utils import has_group_perm
@@ -75,15 +75,15 @@ def list_by_category(req, slug):
     articles = list(cat.articles.all())
     if not len(articles):
         articles = None
-    try:
-        # get cat_group
-        cat_group = CategoryGroup.objects.get(category=cat)
-        if not has_group_perm(req, cat_group.group):
-            # if user not in cat_group.group
-            return HttpResponseNotFound()
-    except CategoryGroup.DoesNotExist:
+    # get cat.groups
+    cat_group = cat.groups.all()
+    if len(cat_group):
+        for group in cat_group:
+            if not has_group_perm(req, group):
+                # if user not in group
+                return HttpResponseNotFound()
+    else:
         cat_group = None
-
     if not has_perm_list(req, ["view_article"]):
         if has_perm_list(req, ["view_article_public"]):
             if articles is not None:
@@ -152,11 +152,12 @@ def add_article(req):
     else:
         categories = list()
         for cat in Category.objects.all():
-            try:
-                cat_group = CategoryGroup.objects.get(category=cat)
-                if has_group_perm(req, cat_group.group):
-                    categories.append(cat)
-            except CategoryGroup.DoesNotExist:
+            cat_group = cat.groups.all()
+            if len(cat_group):
+                for group in cat_group:
+                    if has_group_perm(req, group):
+                        categories.append(cat)
+            else:
                 categories.append(cat)
         context = {"categories": categories,}
         context = {**context, **navbar_init()}

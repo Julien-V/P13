@@ -21,7 +21,6 @@ class CreateCategories:
         self.cat_list = self._make_cat_list()
         self.Group = apps.get_model("auth", "Group")
         self.Category = apps.get_model("app_blog", "Category")
-        self.CategoryGroup = apps.get_model("app_blog", "CategoryGroup")
 
     def _make_cat_list(self):
         """This method recursively extracts all nested dict in
@@ -120,22 +119,20 @@ class CreateCategories:
         :param cat: dict(name, group, sub_cat)
         :param cat_obj: app_blog.models.Category object
 
-        :return cat_group: app_blog.models.CategoryGroup object
+        :return cat_obj: app_blog.models.Category object
         """
         group_name = cat['group']  # get group name
         try:
             # get Group object:
             group_obj = self.Group.objects.get(name=group_name)
-            # link group_obj and cat_obj in CategoryGroup
-            cat_group = self.CategoryGroup.objects.create(
-                category=cat_obj,
-                group=group_obj)
+            # Category.groups.add
+            cat_obj.groups.add(group_obj)
             # save
-            cat_group.save()
+            cat_obj.save()
         except self.Group.DoesNotExist:
             print(f"[!] Group {group_name} DoesNotExist ({cat})")
             return None
-        return cat_group
+        return cat_obj
 
     def run(self):
         for cat in self.cat_list:
@@ -146,7 +143,7 @@ class CreateCategories:
                 parent = cat[1]
             cat_obj = self._make_cat(cat_temp['name'], parent)
             if cat_temp['group'] is not None:
-                # add to CategoryGroup
+                # add to Category.groups
                 self._link_cat_group(cat_temp, cat_obj)
         return self.cat_list
 
