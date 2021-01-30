@@ -9,6 +9,8 @@ from django.http import HttpResponseNotFound
 
 from django.shortcuts import render, redirect, reverse
 
+from html import unescape
+
 from app_blog.forms import ConnectionForm, AddArticleForm
 
 from app_blog.models import Article, Category
@@ -142,7 +144,7 @@ def add_article(req):
             for cat in cat_list:
                 cat.articles.add(article)
                 cat.save()
-            # return redirect(article.get_absolute_url())
+            return redirect(article.get_absolute_url())
         else:
             error = True
         return redirect(reverse("add_article"))
@@ -160,6 +162,22 @@ def add_article(req):
         context = {**context, **navbar_init()}
         return render(req, "add_article.html", context)
 
+
+@login_required
+@perm_required(["view_article_public"])
+def show_article(req, slug):
+    try:
+        article = Article.objects.get(slug=slug)
+    except Article.DoesNotExist:
+        print("ArticleDoesNotExist")
+        article = None
+        return HttpResponseNotFound()
+    context = {
+        "article": article,
+        "content": unescape(article.content)
+    }
+    context = {**context, **navbar_init()}
+    return render(req, "article.html", context)
 
 
 @login_required

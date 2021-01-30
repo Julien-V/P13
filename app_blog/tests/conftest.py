@@ -65,31 +65,17 @@ def get_articles_fields():
         return article_fields_list
     return make_articles_fields
 
-        
-
 
 @pytest.fixture
-def make_test_articles(get_articles_fields):
+def make_test_articles(get_articles_fields, make_test_users):
     """This fixture adds several articles :
         - is_public = True
         - is_public = False
         - is_anonymous = True
         - is_anonymous = False
     """
-    user_fields = {
-        "username": "test_aute",
-        "password1": "password_aute",
-        "password2": "password_aute"
-    }
-    # add user
-    user = UserCreationForm(user_fields)
-    if user.is_valid():
-        user.save()
-    else:
-        pytest.fail(
-            "UserCreationForm failed in fixture : make_test_articles")
-
-    user = User.objects.get(username=user_fields['username'])
+    username = "test_admi"
+    user = User.objects.get(username=username)
     group_obj = Group.objects.get(name="Auteur")
     group_obj.user_set.add(user)
     # add articles

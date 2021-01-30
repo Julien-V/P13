@@ -89,3 +89,13 @@ def test_add_article(
                 # cat name verification
                 assert len(cat_validation) == len(cat_list)
 
+
+@pytest.mark.django_db
+def test_show_article(client, make_test_articles):
+    """Tests show article"""
+    client.login(username="test_admi", password="password_admi")
+    articles = Article.objects.all()
+    for article in articles:
+        res = client.get(article.get_absolute_url())
+        assert res.status_code == 200
+        assert article.content in res.content.decode()

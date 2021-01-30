@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block page_content %}
+<main class="w-100" id="main-article">
+	<div class="container-fluid h-100" id="main-article-container">
+		<h2>{{ article.title }}</h2>
+		{% if article.is_anonymous %}
+		<p>Ajouté le {{ article.created }} par Anonyme</p>
+		{% else %}
+		<p>Ajouté le {{ article.created }} par {{ article.writer }}</p>
+		{% endif %}
+		<p class="text-muted" id="main-article-description">{{ article.description }}</p>
+		<div id="main-article-content">
+			{{ content|safe }}
+		</div>
+	</div>
+</main>
+<section class="w-100" id="section-comments">
+	<div class="container" id="section-comments-container">
+		<div class="row" id="section-comments-add-comment">
+			<form action="/add_comment" method="POST">
+				{% csrf_token %}
+				<label for="input-add-comment" class="visually-hidden">Ajouter un commentaire</label>
+ 				<textarea class="form-control" name="content" id="input-add-comment" placeholder="Ajouter un commentaire" required=""></textarea>
+ 				<button type="submit" class="btn btn-primary btn-purple" id="section-comments-btn-submit">Ajouter le commentaire</button>
+			</form>
+		</div>
+		<hr>
+		{% if article.comment_set.all %}
+		{% for comment in article.comment_set.all %}
+		<div class="row">
+			<h4>{{ comment.writer.username }}</h4>
+			{{ comment.content }}
+		</div>
+		{% endfor %}
+		{% else %}
+		<p>Aucun commentaire</p>
+		{% endif %}
+	</div>
+</section>
+{% endblock %}
