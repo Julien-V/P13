@@ -28,7 +28,7 @@ def test_list_by_category(client, make_test_articles):
     assert response.status_code == 200
     html = response.content.decode()
     articles_html = [
-        article.start() for article in re.finditer('article-', html)
+        article.start() for article in re.finditer('row-article-', html)
     ]
     assert len(articles_html) == len(articles)
 

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block page_content %}
-<header class="cathead" id="cathead">
+<header class="cathead h-50" id="cathead">
 	<div class="container">
 		<div class="row">
 			<div class="col-8 text-center">
@@ -22,17 +22,19 @@
 	<div class="container">
 		{% if articles %}
 		{% for article in articles %}
-		<div class="row">
+		<div class="row-article-{{ article.id }}">
+			<a href="{{ article.get_absolute_url }}">
 			<div class="col-lg-8" id="article-{{ article.id }}">
 				<h4>{{ article.title }}</h4>
 				{% if article.is_anonymous %}
 				<p> par Anonyme</p>
 				{% else %}
-				<p> par {{ article.writer }}</p>
-				<p>Le {{ article.added_timestamp }}</p>
+				<p class="text-muted">Le {{ article.created }} par {{ article.writer }}</p>
 				{% endif %}
 			</div>
+			</a>
 		</div>
+		<hr>
 		{% endfor %}
 		{% else %}
 		<div class="row text-center">
