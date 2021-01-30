@@ -4,10 +4,9 @@
 import re
 import pytest
 
-from django.contrib.auth.models import User
 from django.shortcuts import reverse
 
-from app_blog.models import Article, Category
+from app_blog.models import Article
 
 
 @pytest.mark.django_db
@@ -28,9 +27,10 @@ def test_list_by_category(client, make_test_articles):
     response = client.get(cat_list[0])
     assert response.status_code == 200
     html = response.content.decode()
-    articles_html = [article.start() for article in re.finditer('article-', html)]
+    articles_html = [
+        article.start() for article in re.finditer('article-', html)
+    ]
     assert len(articles_html) == len(articles)
-
 
 
 @pytest.mark.django_db
@@ -58,8 +58,8 @@ def test_add_article(
     client.login(**credentials)
     response = client.get(reverse("add_article"))
     assert response.status_code == expected_status_code
-        # login_required
-        # add_article perm
+    # login_required
+    # add_article perm
     if response.status_code == 200:
         # get csrf_token from cookie
         csrf_token = client.cookies['csrftoken'].value
@@ -82,9 +82,9 @@ def test_add_article(
             # get cat name from cat_list ('subcat-name'-->'name')
             cat_list = [elem.split("-")[1] for elem in cat_list]
             for article in articles:
-                categories = article.category_set.all()
+                cat_all = article.category_set.all()
                 cat_validation = {
-                    cat.name: True for cat in categories if cat.name in cat_list
+                    cat.name: True for cat in cat_all if cat.name in cat_list
                 }
                 # cat name verification
                 assert len(cat_validation) == len(cat_list)

@@ -129,13 +129,13 @@ def add_article(req):
             print(f"User.DoesNotExist : {req.user}")
             return HttpResponseNotFound()
         form_fields["writer"] = user
-        cat_dict = {c:None for c in form_fields.pop("cat_list")}
+        cat_dict = {c: None for c in form_fields.pop("cat_list")}
         for key in cat_dict.keys():
             try:
                 cat = Category.objects.get(name=key)
                 cat_dict[key] = cat
             except Category.DoesNotExist:
-                print(f"Category.DoesNotExist")
+                print(f"Category.DoesNotExist : {key}")
                 return HttpResponseNotFound()
         cat_list = [val for key, val in cat_dict.items() if val is not None]
         form = AddArticleForm(form_fields)
@@ -158,7 +158,7 @@ def add_article(req):
                         categories.append(cat)
             else:
                 categories.append(cat)
-        context = {"categories": categories,}
+        context = {"categories": categories}
         context = {**context, **navbar_init()}
         return render(req, "add_article.html", context)
 
