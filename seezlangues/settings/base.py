@@ -186,5 +186,19 @@ APP_BLOG_CATEGORY_HIERARCHY = [
                 ['Formations', "Contributeur", None],
                 ['Évènements', None, None]]
             ]
+    }, {
+        "name": "Niveaux",
+        "group": None,
+        "sub_cat": [
+            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
+                ['6ème', None, None],
+                ['5ème', None, None],
+                ['4ème', None, None],
+                ['3ème', None, None],
+                ['2nde', None, None],
+                ['1ère', None, None],
+                ['Tle', None, None],
+            ]
+        ]
     }
 ]
