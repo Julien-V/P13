@@ -12,6 +12,7 @@ from django.shortcuts import render, redirect, reverse
 from html import unescape
 
 from app_blog.forms import ConnectionForm, AddArticleForm
+from app_blog.forms import AddCommentForm
 
 from app_blog.models import Article, Category
 
@@ -178,6 +179,33 @@ def show_article(req, slug):
     }
     context = {**context, **navbar_init()}
     return render(req, "article.html", context)
+
+
+@login_required
+@perm_required(["add_comment"])
+def add_comment(req):
+    if req.method == "POST":
+        print(req.POST)
+        # get user
+        try:
+            user = User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            print(f"User.DoesNotExist : {req.user}")
+            return HttpResponseNotFound()
+        try:
+            article = Article.objects.get(slug=req.POST['article_slug'])
+        except Article.DoesNotExist:
+            print(f"Article.DoesNotExist : {req.POST['article_slug']}")
+            return HttpResponseNotFound()
+        fields = {
+            "writer": user,
+            "article": article,
+            "content": unescape(req.POST["content"])
+        }
+        form = AddCommentForm(fields)
+        if form.is_valid():
+            comment = form.save()
+        return redirect(article.get_absolute_url())
 
 
 @login_required

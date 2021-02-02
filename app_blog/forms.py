@@ -5,7 +5,7 @@ from django import forms
 
 from django.contrib.auth.models import User
 
-from app_blog.models import Article
+from app_blog.models import Article, Comment
 
 
 class ConnectionForm(forms.Form):
@@ -52,4 +52,13 @@ class AddArticleForm(forms.ModelForm):
             'title', 'description', 'content',
             'is_anonymous', 'is_public',
             'ext_link', "writer"
+        ]
+
+
+class AddCommentForm(forms.ModelForm):
+
+    class Meta:
+        model = Comment
+        fields = [
+            'content', 'article', 'writer'
         ]

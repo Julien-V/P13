@@ -6,7 +6,7 @@ import pytest
 
 from django.shortcuts import reverse
 
-from app_blog.models import Article
+from app_blog.models import Article, Comment
 
 
 @pytest.mark.django_db
@@ -99,3 +99,28 @@ def test_show_article(client, make_test_articles):
         res = client.get(article.get_absolute_url())
         assert res.status_code == 200
         assert article.content in res.content.decode()
+
+
+@pytest.mark.django_db
+def test_add_comment(client, make_test_articles, make_test_users):
+    """Tests /add_comment"""
+    client.login(username="test_admi", password="password_admi")
+    articles = Article.objects.all()
+    article = articles[0]
+    response = client.get(article.get_absolute_url())
+    assert response.status_code == 200
+    if response.status_code == 200:
+        # get csrf_token from cookie
+        csrf_token = client.cookies['csrftoken'].value
+        fields = {
+            "content": "test_add_comment",
+            "csrfmiddlewaretoken": csrf_token,
+            "article_slug": article.slug
+        }
+        response = client.post(reverse('add_comment'), fields)
+        assert response.status_code == 302
+        try:
+            comment = Comment.objects.get(content=fields["content"])
+        except Comment.DoesNotExist:
+            pytest.fail(f'comment DoesNotExist')
+        assert comment.writer.username == "test_admi"

@@ -76,8 +76,6 @@ def make_test_articles(get_articles_fields, make_test_users):
     """
     username = "test_admi"
     user = User.objects.get(username=username)
-    group_obj = Group.objects.get(name="Auteur")
-    group_obj.user_set.add(user)
     # add articles
     article_fields_list = get_articles_fields(user)
     cat = Category.objects.get(name="Anglais")  # test multiples category
