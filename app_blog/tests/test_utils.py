@@ -62,22 +62,43 @@ def test_has_perm_list(make_test_users, group):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "group",
+    "group, users_dict",
     [
-        ("Admin"),
-        ("Conseiller"),
-        ("Contributeur"),
-        ("Auteur"),
-        ("Abonné"),
-        ("Expert"),
+        ("Admin", {
+            "test_admi": True,
+        }),
+        ("Conseiller", {
+            "test_admi": True,
+            "test_cons": True,
+        }),
+        ("Contributeur", {
+            "test_admi": True,
+            "test_aute": True,
+            "test_cont": True,
+        }),
+        ("Auteur", {
+            "test_admi": True,
+            "test_aute": True,
+        }),
+        ("Abonné", {
+            "test_admi": True,
+            "test_aute": True,
+            "test_cont": True,
+            "test_expe": True,
+        }),
+        ("Expert", {
+            "test_admi": True,
+            "test_expe": True,
+        }),
     ]
 )
-def test_has_group_perm(make_test_users, group):
-    username = f"test_{group.lower()[:4]}"
-    group_obj = Group.objects.get(name=group)
+def test_has_group_perm(make_test_users, group, users_dict):
+    for key, val in users_dict.items():
+        username = key
+        group_obj = Group.objects.get(name=group)
 
-    class Req:
-        # fake request object
-        user = username
-    t_val = has_group_perm(Req, group_obj, False)
-    assert t_val is True
+        class Req:
+            # fake request object
+            user = username
+        t_val = has_group_perm(Req, group_obj, False)
+        assert t_val is val
