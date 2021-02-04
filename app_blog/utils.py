@@ -2,7 +2,10 @@
 # coding : utf-8
 
 from django.contrib.auth.models import User
+
 from django.shortcuts import redirect
+
+from django.utils.http import url_has_allowed_host_and_scheme
 
 
 def perm_required(perm_list):
@@ -90,3 +93,17 @@ def get_user_groups_perm(req):
         for perm in perms:
             user_perms.append(perm)
     return user, groups, user_perms
+
+
+def redirect_next(req):
+    """This function checks"""
+    nxt = req.GET.get("next", None)
+    print(nxt)
+    if nxt is None:
+        return redirect("/")
+    elif url_has_allowed_host_and_scheme(
+            url=nxt, allowed_hosts={req.get_host()},
+            require_https=req.is_secure()):
+        return redirect(nxt)
+    else:
+        return redirect("/")

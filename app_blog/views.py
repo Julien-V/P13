@@ -17,7 +17,7 @@ from app_blog.forms import AddCommentForm
 from app_blog.models import Article, Category
 
 from app_blog.utils import has_perm_list, perm_required
-from app_blog.utils import has_group_perm
+from app_blog.utils import has_group_perm, redirect_next
 
 
 def navbar_init():
@@ -54,6 +54,7 @@ def log_in(req):
                 password=password)
             if user:
                 login(req, user)
+                return redirect_next(req)
             else:
                 error = True
     else:

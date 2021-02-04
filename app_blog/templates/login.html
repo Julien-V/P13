@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block page_content %}
 <main class="form-signin text-center w-100 h-100" id="main-signin">
-  	<form action="/login" method="POST">
+  	<form action="{{ req.path }}" method="POST">
   		{% csrf_token %}
     	<img class="mb-4" src="/static/assets/logo.svg" alt="" width="172" height="157">
     	<h1 class="h3 mb-3 fw-normal">Connexion</h1>
