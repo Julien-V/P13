@@ -3,7 +3,7 @@
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from django.http import HttpResponseNotFound
 
@@ -11,8 +11,8 @@ from django.shortcuts import render, redirect, reverse
 
 from html import unescape
 
-from app_blog.forms import ConnectionForm, AddArticleForm
-from app_blog.forms import AddCommentForm
+from app_blog.forms import ConnectionForm, RegisterForm
+from app_blog.forms import AddArticleForm, AddCommentForm
 
 from app_blog.models import Article, Category
 
@@ -34,6 +34,11 @@ def navbar_init():
         except Category.DoesNotExist:
             print(f"{name} DoesNotExist")
     return context
+
+
+###############################################################################
+# Public views
+###############################################################################
 
 
 def index(req):
@@ -66,6 +71,34 @@ def log_in(req):
     context = {**context, **navbar_init()}
     return render(req, 'login.html', context)
 
+
+def sign_up(req):
+    error = False
+    if req.method == "POST":
+        form = RegisterForm(req.POST)
+        if form.is_valid():
+            temp = req.POST.copy()
+            form = RegisterForm(temp)
+            if form.is_valid():
+                form.save()
+                try:
+                    user = User.objects.get(username=temp["username"])
+                    group = Group.objects.get(name="Abonné")
+                    user.groups.add(group)
+                    user.save()
+                except User.DoesNotExist:
+                    print('user created but DoesNotExist')
+                except Group.DoesNotExist:
+                    print('group DoesNotExist')
+                return redirect(reverse('login'))
+    else:
+        form = RegisterForm()
+    return render(req, 'register.html', locals())
+
+
+###############################################################################
+# login_required views
+###############################################################################
 
 @login_required
 def list_by_category(req, slug):

@@ -164,7 +164,7 @@ header.masthead > div.container-fluid {
 }*/
 
 /* /login */
-#main-signin {
+[id^=main-sign] {
   padding-top: 10%;
   max-width: 330px;
   margin: auto;

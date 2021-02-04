@@ -3,6 +3,7 @@
 
 from django import forms
 
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 from app_blog.models import Article, Comment
@@ -33,6 +34,17 @@ class ConnectionForm(forms.Form):
                 except User.DoesNotExist:
                     pass
         return cleaned_data
+
+
+class RegisterForm(UserCreationForm):
+
+    class Meta:
+        model = User
+        fields = [
+            "username", "email",
+            'first_name', 'last_name',
+            'password1', "password2"
+        ]
 
 
 class AddArticleForm(forms.ModelForm):
