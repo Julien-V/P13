@@ -133,6 +133,26 @@ LOGIN_URL = '/login'
 # Seezlangues settings : app_blog            #
 ##############################################
 
+APP_BLOG_GROUPS = [
+    "Admin",
+    "Conseiller",
+    "Expert",
+    "Auteur",
+    "Contributeur",
+    "Abonné",
+]
+
+
+def grps(*args):
+    """Returns a list of group name from APP_BLOG_GROUPS indexes
+    >>> grps(0, 1, 3)
+    ["Admin", "Conseiller", "Auteur"]
+
+    :return: list
+    """
+    return [APP_BLOG_GROUPS[i] for i in args]
+
+
 """ a_category = {
     "name": <str:cat_name>,
     "group": <str:cat_group> or None
@@ -157,8 +177,8 @@ APP_BLOG_CATEGORY_HIERARCHY = [
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
                 ['Ressources non didactisées libres', None, None],
-                ['Ressources didactisées', "Contributeur", None],
-                ["Productions d'Élèves", "Auteur", None]]
+                ['Ressources didactisées', grps(0, 1, 2, 3, 4), None],
+                ["Productions d'Élèves", grps(0, 1, 2, 3), None]]
             ]
     }, {
         "name": 'Outils Numériques',
@@ -166,7 +186,7 @@ APP_BLOG_CATEGORY_HIERARCHY = [
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
                 ['Le Numérique', None, None],
-                ['Tutoriels', "Auteur", None]]
+                ['Tutoriels', grps(0, 1, 2, 3), None]]
             ]
     }, {
         "name": 'Salle des professeurs',
@@ -174,16 +194,16 @@ APP_BLOG_CATEGORY_HIERARCHY = [
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
                 ['Référentiels', None, None],
-                ["Paroles d'IPR", 'Auteur', None],
-                ["Forum", "Auteur", None],
-                ["Conseiller", "Conseiller", None]]
+                ["Paroles d'IPR", grps(0, 1, 2, 3), None],
+                ["Forum", grps(0, 1, 3), None],
+                ["Conseiller", grps(0, 1), None]]
             ]
     }, {
         "name": 'Agenda',
         "group": None,
         "sub_cat": [
             dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
-                ['Formations', "Contributeur", None],
+                ['Formations', grps(0, 1, 2, 3, 4), None],
                 ['Évènements', None, None]]
             ]
     }, {

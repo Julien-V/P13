@@ -82,10 +82,13 @@ def list_by_category(req, slug):
     # get cat.groups
     cat_group = cat.groups.all()
     if len(cat_group):
+        clearance = False
         for group in cat_group:
-            if not has_group_perm(req, group):
-                # if user not in group
-                return HttpResponseNotFound()
+            if has_group_perm(req, group):
+                clearance = True
+        if not clearance:
+            # if user not in group
+            return HttpResponseNotFound()
     else:
         cat_group = None
     if not has_perm_list(req, ["view_article"]):
@@ -154,9 +157,12 @@ def add_article(req):
         for cat in Category.objects.all():
             cat_group = cat.groups.all()
             if len(cat_group):
+                clearance = False
                 for group in cat_group:
                     if has_group_perm(req, group):
-                        categories.append(cat)
+                        clearance = True
+                if clearance:
+                    categories.append(cat)
             else:
                 categories.append(cat)
         context = {"categories": categories}

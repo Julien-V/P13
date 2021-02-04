@@ -36,10 +36,13 @@ def test_group(name):
 def test_category(cat):
     """Tests categories creation"""
     name = cat['name']
+    group = cat['group']
     sub_cat = cat['sub_cat']
     try:
         cat_obj = Category.objects.get(name=name)
     except Category.DoesNotExist:
         pytest.fail(f"{name} DoesNotExist")
     assert cat_obj.name == name
+    if group is not None:
+        assert len(group) == len(cat_obj.groups.all())
     assert len(sub_cat) == len(cat_obj.sub_category.all())

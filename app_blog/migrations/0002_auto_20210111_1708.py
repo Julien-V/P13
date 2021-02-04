@@ -42,7 +42,7 @@ def make_groups(apps, schema_editor):
     ]
 
     experts = base + [
-        "view_category_all_wo_c_f",
+        "view_article", "view_category_all_wo_c_f",
     ]
     admin = base_pp + conseillers + [
         "del_users_articles", "change_users_articles", "add_category",
