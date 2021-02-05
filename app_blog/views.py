@@ -96,6 +96,12 @@ def sign_up(req):
     return render(req, 'register.html', locals())
 
 
+def about(req):
+    context = dict()
+    context = {**context, **navbar_init()}
+    return render(req, "about.html", context)
+
+
 ###############################################################################
 # login_required views
 ###############################################################################

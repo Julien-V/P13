@@ -178,13 +178,13 @@ header.masthead > div.container-fluid {
 
 
 /* add_article */
-#main-add-article, #main-article {
+#main-add-article, #main-article, #main-about {
   padding-top: 6%;
   margin: auto;
   background-color: var(--color-green);
 }
 
-#main-add-article-container, #main-article-container {
+#main-add-article-container, #main-article-container, #main-about-container {
   padding-top: 2%;
   border-radius: 2%;
   max-width: 70%;
@@ -258,4 +258,16 @@ header.masthead > div.container-fluid {
 
 #section-comments-btn-submit {
   margin-top:1%;
+}
+
+/* /about */
+.twocols {
+  padding-top:2%;
+  column-count: 2;
+  column-gap: 3%;
+  column-rule: double;
+}
+
+.about {
+  font-family: sans-serif;
 }

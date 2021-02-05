@@ -7,6 +7,7 @@ from .import views
 
 urlpatterns = [
     path('', views.index, name="home"),
+    path('about', views.about, name="about_us"),
     path('add_article', views.add_article, name="add_article"),
     path('add_comment', views.add_comment, name="add_comment"),
     path('article/<slug:slug>/', views.show_article, name="article"),
