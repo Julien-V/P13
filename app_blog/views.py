@@ -86,14 +86,20 @@ def sign_up(req):
                     group = Group.objects.get(name="Abonné")
                     user.groups.add(group)
                     user.save()
+                    return redirect(reverse('login'))
                 except User.DoesNotExist:
-                    print('user created but DoesNotExist')
+                    error = 'user created but DoesNotExist'
                 except Group.DoesNotExist:
-                    print('group DoesNotExist')
-                return redirect(reverse('login'))
+                    error = 'group "Abonné" DoesNotExist'
+            else:
+                error = form.errors
     else:
         form = RegisterForm()
-    return render(req, 'register.html', locals())
+    context = {
+        "error": error
+    }
+    context = {**context, **navbar_init()}
+    return render(req, 'register.html', context)
 
 
 def about(req):
