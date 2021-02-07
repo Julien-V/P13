@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.template.defaultfilters import slugify
 
+from app_blog.utils import has_perm_list
+
 import uuid
 
 
@@ -27,6 +29,16 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse('article', args=(self.slug,))
+
+    def can_be_edited_by(self, req):
+        try:
+            user = User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return False
+        if self.writer == user:
+            return has_perm_list(req, ["change_user_articles"])
+        else:
+            return has_perm_list(req, ["change_users_articles"])
 
     def save(self, *args, **kwargs):
         if not self.id:

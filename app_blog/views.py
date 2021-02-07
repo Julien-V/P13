@@ -12,12 +12,13 @@ from django.shortcuts import render, redirect, reverse
 from html import unescape
 
 from app_blog.forms import ConnectionForm, RegisterForm
-from app_blog.forms import AddArticleForm, AddCommentForm
+from app_blog.forms import AddArticleForm, EditArticleForm, AddCommentForm
 
 from app_blog.models import Article, Category
 
 from app_blog.utils import has_perm_list, perm_required
 from app_blog.utils import has_group_perm, redirect_next
+from app_blog.utils import clean_post_article_fields
 
 
 def navbar_init():
@@ -159,19 +160,7 @@ def add_article(req):
     """
     error = False
     if req.method == "POST":
-        form_fields = dict()
-        form_fields["cat_list"] = list()
-        for key, val in dict(req.POST).items():
-            try:
-                form_fields[key] = dict(req.POST)[key][0]
-            except IndexError:
-                form_fields[key] = dict(req.POST)[key]
-            if form_fields[key] in ['on', 'off']:
-                if "cat-" in key:
-                    cat_type, cat_name = key.split("-")
-                    form_fields["cat_list"].append(cat_name)
-                else:
-                    form_fields[key] = val == "on"
+        form_fields = clean_post_article_fields(req.POST.copy())
         # get user
         try:
             user = User.objects.get(username=req.user)
@@ -227,6 +216,7 @@ def show_article(req, slug):
         return HttpResponseNotFound()
     context = {
         "article": article,
+        "can_be_edited_by_user": article.can_be_edited_by(req),
         "content": unescape(article.content)
     }
     context = {**context, **navbar_init()}
@@ -258,6 +248,64 @@ def add_comment(req):
         if form.is_valid():
             comment = form.save()
         return redirect(article.get_absolute_url())
+
+
+@login_required
+@perm_required(['add_article'])
+def edit_article(req, slug):
+    # get article from slug
+    try:
+        article = Article.objects.get(slug=slug)
+    except Article.DoesNotExist:
+        return HttpResponseNotFound()
+    if not article.can_be_edited_by(req):
+        return HttpResponseNotFound()
+    if req.method == "POST":
+        form_fields = clean_post_article_fields(req.POST.copy())
+        try:
+            user = User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return HttpResponseNotFound()
+        form_fields["writer"] = user
+        form = EditArticleForm(form_fields, instance=article)
+        article.category_set.clear()
+        cat_dict = {c: None for c in form_fields.pop("cat_list")}
+        for key in cat_dict.keys():
+            try:
+                cat = Category.objects.get(name=key)
+                cat_dict[key] = cat
+            except Category.DoesNotExist:
+                print(f"Category.DoesNotExist : {key}")
+                return HttpResponseNotFound()
+        cat_list = [val for key, val in cat_dict.items() if val is not None]
+        if form.is_valid():
+            article = form.save()
+            for cat in cat_list:
+                cat.articles.add(article)
+                cat.save()
+            return redirect(article.get_absolute_url())
+        else:
+            error = True
+    else:
+        categories = list()
+        for cat in Category.objects.all():
+            cat_group = cat.groups.all()
+            if len(cat_group):
+                clearance = False
+                for group in cat_group:
+                    if has_group_perm(req, group):
+                        clearance = True
+                if clearance:
+                    categories.append(cat)
+            else:
+                categories.append(cat)
+        context = {
+            "content": "".join(x for x in article.content.splitlines()),
+            "categories": categories,
+            "article": article,
+        }
+        context = {**context, **navbar_init()}
+        return render(req, "edit_article.html", context)
 
 
 @login_required

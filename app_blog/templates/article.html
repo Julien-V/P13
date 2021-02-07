@@ -2,11 +2,14 @@
 {% block page_content %}
 <main class="w-100" id="main-article">
 	<div class="container-fluid h-100" id="main-article-container">
+		{% if can_be_edited_by_user %}
+		<a href="/edit{{ article.get_absolute_url }}" class="btn btn-primary btn-purple">Éditer l'article</a>
+		{% endif %}
 		<h2>{{ article.title }}</h2>
 		{% if article.is_anonymous %}
-		<p>Ajouté le {{ article.created }} par Anonyme</p>
+		<p>Dernière modification le {{ article.edited }} par Anonyme</p>
 		{% else %}
-		<p>Ajouté le {{ article.created }} par {{ article.writer }}</p>
+		<p>Dernière modification le {{ article.edited }} par {{ article.writer }}</p>
 		{% endif %}
 		<p class="text-muted" id="main-article-description">{{ article.description }}</p>
 		<div id="main-article-content">

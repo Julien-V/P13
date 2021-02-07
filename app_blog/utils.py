@@ -107,3 +107,20 @@ def redirect_next(req):
         return redirect(nxt)
     else:
         return redirect("/")
+
+
+def clean_post_article_fields(fields):
+    form_fields = dict()
+    form_fields["cat_list"] = list()
+    for key, val in fields.items():
+        try:
+            form_fields[key] = dict(fields)[key][0]
+        except IndexError:
+            form_fields[key] = dict(fields)[key]
+        if form_fields[key] in ['on', 'off']:
+            if "cat-" in key:
+                cat_type, cat_name = key.split("-")
+                form_fields["cat_list"].append(cat_name)
+            else:
+                form_fields[key] = val == "on"
+    return form_fields

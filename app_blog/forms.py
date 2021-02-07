@@ -67,6 +67,27 @@ class AddArticleForm(forms.ModelForm):
         ]
 
 
+class EditArticleForm(AddArticleForm):
+
+    def __init__(self, *args, **kwargs):
+        super(forms.ModelForm, self).__init__(*args, **kwargs)
+        not_required_fields = [
+            'title', 'description', 'content',
+            'is_anonymous', 'is_public', 'ext_link',
+            'writer'
+        ]
+        for elem in not_required_fields:
+            self.fields[elem].required = False
+
+    class Meta:
+        model = Article
+        fields = [
+            'title', 'description', 'content',
+            'is_anonymous', 'is_public',
+            'ext_link', "writer"
+        ]
+
+
 class AddCommentForm(forms.ModelForm):
 
     class Meta:
