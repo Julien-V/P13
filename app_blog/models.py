@@ -30,6 +30,9 @@ class Article(models.Model):
     def get_absolute_url(self):
         return reverse('article', args=(self.slug,))
 
+    def get_edit_url(self):
+        return reverse('edit_article', args=(self.slug,))
+
     def can_be_edited_by(self, req):
         try:
             user = User.objects.get(username=req.user)

@@ -10,6 +10,19 @@ from django.shortcuts import reverse
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
+    "url, expected_status_code",
+    [
+        (reverse("home"), 200,),
+        (reverse("about_us"), 200)
+    ]
+)
+def test_public_url(client, url, expected_status_code):
+    response = client.get(url)
+    assert response.status_code == expected_status_code
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
     "url, expected_status, expected_redirect_url",
     [
         ("/login", 302, "/",),

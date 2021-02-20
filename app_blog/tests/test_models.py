@@ -38,3 +38,15 @@ def test_slug(obj, fields, slug):
         pytest.fail(f"{obj} DoesNotExist")
     slug = slug(temp.id)
     assert temp.slug == slug
+
+
+@pytest.mark.django_db
+def test_article_get_edit_url(make_test_articles):
+    """Tests Article.get_edit_url()"""
+    articles = Article.objects.all()
+    if not len(articles):
+        pytest.fail("No articles")
+    else:
+        for article in articles:
+            edit_url = f"/edit/article/{article.slug}/"
+            assert article.get_edit_url() == edit_url

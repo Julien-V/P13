@@ -102,6 +102,13 @@ def test_show_article(client, make_test_articles):
 
 
 @pytest.mark.django_db
+def test_show_article_wrong_article(client, make_test_articles):
+    client.login(username="test_admi", password="password_admi")
+    response = client.get("/article/test-1/")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
 def test_add_comment(client, make_test_articles, make_test_users):
     """Tests /add_comment"""
     client.login(username="test_admi", password="password_admi")
@@ -122,5 +129,43 @@ def test_add_comment(client, make_test_articles, make_test_users):
         try:
             comment = Comment.objects.get(content=fields["content"])
         except Comment.DoesNotExist:
-            pytest.fail(f'comment DoesNotExist')
+            pytest.fail('comment DoesNotExist')
         assert comment.writer.username == "test_admi"
+
+
+@pytest.mark.django_db
+def test_edit_article(client, make_test_articles):
+    client.login(username="test_admi", password="password_admi")
+    articles = Article.objects.all()
+    article = articles[0]
+    response = client.get(article.get_edit_url())
+    assert response.status_code == 200
+    if response.status_code == 200:
+        # get csrf_token from cookie
+        csrf_token = client.cookies['csrftoken'].value
+        content = "test_edit_article"
+        cat_dict = {
+            f"subcat-{cat.name}": "on" for cat in article.category_set.all()}
+        fields = {
+            "categories": cat_dict,
+            "content": content,
+            "title": article.title+"edited",
+            "description": article.description,
+            "csrfmiddlewaretoken": csrf_token,
+        }
+        response = client.post(article.get_edit_url(), fields)
+        assert response.status_code == 302
+        assert response.url == article.get_absolute_url()
+        article = Article.objects.get(id=article.id)
+        assert "edited" in article.title
+
+
+@pytest.mark.django_db
+def test_edit_article_wrong_user(client, make_test_articles):
+    """Tests edit_article view by trying to edit an article
+    with the wrong user test_cont (Contributeur)."""
+    client.login(username="test_cont", password="password_cont")
+    articles = Article.objects.all()
+    article = articles[0]
+    response = client.get(article.get_edit_url())
+    assert response.status_code == 404
