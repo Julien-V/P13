@@ -26,6 +26,7 @@ class ConnectionForm(forms.Form):
         cleaned_data = super(ConnectionForm, self).clean()
         if "username_email" in cleaned_data.keys():
             value = cleaned_data["username_email"]
+            cleaned_data["username"] = ""
             for field in ["email", "username"]:
                 field_dict = {field: value}
                 try:
