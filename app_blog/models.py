@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.template.defaultfilters import slugify
 
-from app_blog.utils import has_perm_list
+from app_blog.utils import has_perm_list, has_group_perm
 
 import uuid
 
@@ -93,6 +93,22 @@ class Category(models.Model):
 
     def get_absolute_url(self):
         return reverse('category', args=(self.slug,))
+
+    def can_be_viewed_by(self, req):
+        try:
+            User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return False
+        if not len(self.groups.all()):
+            return True
+        else:
+            group_clearance = [
+                has_group_perm(req, group) for group in self.groups.all()
+            ]
+            if True in group_clearance:
+                return True
+            else:
+                return False
 
     def save(self, *args, **kwargs):
         # temp slug

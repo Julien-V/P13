@@ -21,19 +21,24 @@ from app_blog.utils import has_group_perm, redirect_next
 from app_blog.utils import clean_post_article_fields
 
 
-def navbar_init():
+def navbar_init(req):
     """Initializes navbar
+
+    :param req: request object
 
     :return context: dict()
     """
-    context = dict()
-    cat_name = ["Langues"]
-    for name in cat_name:
-        try:
-            cat = Category.objects.get(name=name)
-            context[name.lower()] = cat
-        except Category.DoesNotExist:
-            print(f"{name} DoesNotExist")
+    context = {
+        "navbar_cat_list": list(),
+        "navbar_sub_cat_list": list()
+    }
+    categories = Category.objects.all()
+    for cat in categories:
+        if cat.can_be_viewed_by(req):
+            if not cat.parent_category:
+                context["navbar_cat_list"].append(cat)
+            else:
+                context["navbar_sub_cat_list"].append(cat.name)
     return context
 
 
@@ -44,7 +49,7 @@ def navbar_init():
 
 def index(req):
     context = dict()
-    context = {**context, **navbar_init()}
+    context = {**context, **navbar_init(req)}
     return render(req, 'index.html', context)
 
 
@@ -69,7 +74,7 @@ def log_in(req):
         "error": error,
         "form": form
     }
-    context = {**context, **navbar_init()}
+    context = {**context, **navbar_init(req)}
     return render(req, 'login.html', context)
 
 
@@ -99,13 +104,13 @@ def sign_up(req):
     context = {
         "error": error
     }
-    context = {**context, **navbar_init()}
+    context = {**context, **navbar_init(req)}
     return render(req, 'register.html', context)
 
 
 def about(req):
     context = dict()
-    context = {**context, **navbar_init()}
+    context = {**context, **navbar_init(req)}
     return render(req, "about.html", context)
 
 
@@ -148,7 +153,7 @@ def list_by_category(req, slug):
         "articles": articles,
         "category": cat
     }
-    context = {**context, **navbar_init()}
+    context = {**context, **navbar_init(req)}
     return render(req, 'list_by_category.html', context)
 
 
@@ -201,7 +206,7 @@ def add_article(req):
             else:
                 categories.append(cat)
         context = {"categories": categories}
-        context = {**context, **navbar_init()}
+        context = {**context, **navbar_init(req)}
         return render(req, "add_article.html", context)
 
 
@@ -220,7 +225,7 @@ def show_article(req, slug):
         "can_be_deleted_by_user": article.can_be_deleted_by(req),
         "content": unescape(article.content)
     }
-    context = {**context, **navbar_init()}
+    context = {**context, **navbar_init(req)}
     return render(req, "article.html", context)
 
 
@@ -305,7 +310,7 @@ def edit_article(req, slug):
             "categories": categories,
             "article": article,
         }
-        context = {**context, **navbar_init()}
+        context = {**context, **navbar_init(req)}
         return render(req, "edit_article.html", context)
 
 
