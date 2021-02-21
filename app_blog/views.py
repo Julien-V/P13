@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # coding : utf-8
 
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
@@ -65,6 +66,7 @@ def log_in(req):
                 password=password)
             if user:
                 login(req, user)
+                messages.success(req, f"Bonjour {user.username} !")
                 return redirect_next(req)
             else:
                 error = True
@@ -92,6 +94,8 @@ def sign_up(req):
                     group = Group.objects.get(name="Abonné")
                     user.groups.add(group)
                     user.save()
+                    messages.success(
+                        req, f"Nouvel utilisateur {user.username} ajouté.")
                     return redirect(reverse('login'))
                 except User.DoesNotExist:
                     error = 'user created but DoesNotExist'
@@ -125,6 +129,10 @@ def list_by_category(req, slug):
         # get cat
         cat = Category.objects.get(slug=slug)
         if not cat.can_be_viewed_by(req):
+            messages.error(
+                req,
+                "Vous n'avez pas le droit de voir cette catégorie."
+            )
             return HttpResponseNotFound()
     except Category.DoesNotExist:
         cat = None
@@ -157,11 +165,7 @@ def add_article(req):
     if req.method == "POST":
         form_fields = clean_post_article_fields(req.POST.copy())
         # get user
-        try:
-            user = User.objects.get(username=req.user)
-        except User.DoesNotExist:
-            print(f"User.DoesNotExist : {req.user}")
-            return HttpResponseNotFound()
+        user = User.objects.get(username=req.user)
         form_fields["writer"] = user
         cat_dict = {c: None for c in form_fields.pop("cat_list")}
         for key in cat_dict.keys():
@@ -169,7 +173,7 @@ def add_article(req):
                 cat = Category.objects.get(name=key)
                 cat_dict[key] = cat
             except Category.DoesNotExist:
-                print(f"Category.DoesNotExist : {key}")
+                messages.error(req, f"Category.DoesNotExist : {key}")
                 return HttpResponseNotFound()
         cat_list = [val for key, val in cat_dict.items() if val is not None]
         form = AddArticleForm(form_fields)
@@ -178,6 +182,7 @@ def add_article(req):
             for cat in cat_list:
                 cat.articles.add(article)
                 cat.save()
+            messages.success(req, 'Article ajouté !')
             return redirect(article.get_absolute_url())
         else:
             error = True
@@ -198,7 +203,6 @@ def show_article(req, slug):
     try:
         article = Article.objects.get(slug=slug)
     except Article.DoesNotExist:
-        print("ArticleDoesNotExist")
         article = None
         return HttpResponseNotFound()
     context = {
@@ -215,13 +219,8 @@ def show_article(req, slug):
 @perm_required(["add_comment"])
 def add_comment(req):
     if req.method == "POST":
-        print(req.POST)
         # get user
-        try:
-            user = User.objects.get(username=req.user)
-        except User.DoesNotExist:
-            print(f"User.DoesNotExist : {req.user}")
-            return HttpResponseNotFound()
+        user = User.objects.get(username=req.user)
         try:
             article = Article.objects.get(slug=req.POST['article_slug'])
         except Article.DoesNotExist:
@@ -245,15 +244,15 @@ def edit_article(req, slug):
     try:
         article = Article.objects.get(slug=slug)
     except Article.DoesNotExist:
+        messages.error(req, "Article introuvable.")
         return HttpResponseNotFound()
     if not article.can_be_edited_by(req):
+        messages.error(
+            req, "Vous n'avez pas le droit de modifier cet article.")
         return HttpResponseNotFound()
     if req.method == "POST":
         form_fields = clean_post_article_fields(req.POST.copy())
-        try:
-            user = User.objects.get(username=req.user)
-        except User.DoesNotExist:
-            return HttpResponseNotFound()
+        user = User.objects.get(username=req.user)
         form_fields["writer"] = user
         form = EditArticleForm(form_fields, instance=article)
         article.category_set.clear()
@@ -263,7 +262,7 @@ def edit_article(req, slug):
                 cat = Category.objects.get(name=key)
                 cat_dict[key] = cat
             except Category.DoesNotExist:
-                print(f"Category.DoesNotExist : {key}")
+                messages.error(req, f"Catégorie introuvable {key}")
                 return HttpResponseNotFound()
         cat_list = [val for key, val in cat_dict.items() if val is not None]
         if form.is_valid():
@@ -271,6 +270,7 @@ def edit_article(req, slug):
             for cat in cat_list:
                 cat.articles.add(article)
                 cat.save()
+            messages.success(req, "Article modifié !")
             return redirect(article.get_absolute_url())
         else:
             error = True
@@ -294,15 +294,20 @@ def del_article(req, slug):
     try:
         article = Article.objects.get(slug=slug)
     except Article.DoesNotExist:
+        messages.error(req, f"Impossible de trouver l'article {slug}")
         return HttpResponseNotFound()
     if not article.can_be_deleted_by(req):
+        messages.error(
+            req, "Vous n'avez pas le droit de supprimer cet article.")
         return HttpResponseNotFound()
     else:
         article.delete()
+        messages.success(req, "Article supprimé.")
     return redirect(reverse("home"))
 
 
 @login_required
 def log_out(req):
     logout(req)
+    messages.success(req, "Vous avez bien été déconnecté de SéezLangues.")
     return redirect(reverse("home"))
