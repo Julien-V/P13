@@ -57,7 +57,7 @@
 			        	<li><hr class="dropdown-divider"></li>
 			        </ul>
 			    </li>
-			    <li class="nav-item active"><a class="nav-link" href="#">Contact</a></li>
+			    <li class="nav-item active"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#contactModal">Contact</a></li>
   			</ul>
   		</div>
     	{% if user.is_authenticated %}
@@ -85,5 +85,7 @@
 	<!-- Custom JS -->
 	{% block custom_js %}
 	{% endblock %}
+	<!-- Contact modal -->
+	{% include "contact.html" %}
 </body>
 </html>
