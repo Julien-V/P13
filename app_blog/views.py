@@ -17,7 +17,7 @@ from app_blog.forms import AddArticleForm, EditArticleForm, AddCommentForm
 from app_blog.models import Article, Category
 
 from app_blog.utils import has_perm_list, perm_required
-from app_blog.utils import has_group_perm, redirect_next
+from app_blog.utils import redirect_next
 from app_blog.utils import clean_post_article_fields
 
 
@@ -124,6 +124,8 @@ def list_by_category(req, slug):
     try:
         # get cat
         cat = Category.objects.get(slug=slug)
+        if not cat.can_be_viewed_by(req):
+            return HttpResponseNotFound()
     except Category.DoesNotExist:
         cat = None
         return HttpResponseNotFound()
@@ -131,18 +133,6 @@ def list_by_category(req, slug):
     articles = list(cat.articles.all())
     if not len(articles):
         articles = None
-    # get cat.groups
-    cat_group = cat.groups.all()
-    if len(cat_group):
-        clearance = False
-        for group in cat_group:
-            if has_group_perm(req, group):
-                clearance = True
-        if not clearance:
-            # if user not in group
-            return HttpResponseNotFound()
-    else:
-        cat_group = None
     if not has_perm_list(req, ["view_article"]):
         if has_perm_list(req, ["view_article_public"]):
             if articles is not None:
@@ -195,15 +185,7 @@ def add_article(req):
     else:
         categories = list()
         for cat in Category.objects.all():
-            cat_group = cat.groups.all()
-            if len(cat_group):
-                clearance = False
-                for group in cat_group:
-                    if has_group_perm(req, group):
-                        clearance = True
-                if clearance:
-                    categories.append(cat)
-            else:
+            if cat.can_be_viewed_by(req):
                 categories.append(cat)
         context = {"categories": categories}
         context = {**context, **navbar_init(req)}
@@ -295,15 +277,7 @@ def edit_article(req, slug):
     else:
         categories = list()
         for cat in Category.objects.all():
-            cat_group = cat.groups.all()
-            if len(cat_group):
-                clearance = False
-                for group in cat_group:
-                    if has_group_perm(req, group):
-                        clearance = True
-                if clearance:
-                    categories.append(cat)
-            else:
+            if cat.can_be_viewed_by(req):
                 categories.append(cat)
         context = {
             "content": "".join(x for x in article.content.splitlines()),
