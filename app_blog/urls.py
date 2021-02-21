@@ -13,6 +13,7 @@ urlpatterns = [
     path('article/<slug:slug>/', views.show_article, name="article"),
     path('category/<slug:slug>/', views.list_by_category, name="category"),
     path('edit/article/<slug:slug>/', views.edit_article, name="edit_article"),
+    path('delete/article/<slug:slug>/', views.del_article, name="del_article"),
     path("login", views.log_in, name="login"),
     path("sign_up", views.sign_up, name="sign_up"),
     path('logout', views.log_out, name="logout")

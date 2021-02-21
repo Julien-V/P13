@@ -33,15 +33,28 @@ class Article(models.Model):
     def get_edit_url(self):
         return reverse('edit_article', args=(self.slug,))
 
-    def can_be_edited_by(self, req):
+    def get_delete_url(self):
+        return reverse('del_article', args=(self.slug,))
+
+    def _can_be_by(self, req, first_perm, second_perm):
         try:
             user = User.objects.get(username=req.user)
         except User.DoesNotExist:
             return False
         if self.writer == user:
-            return has_perm_list(req, ["change_user_articles"])
+            return has_perm_list(req, [first_perm])
         else:
-            return has_perm_list(req, ["change_users_articles"])
+            return has_perm_list(req, [second_perm])
+
+    def can_be_edited_by(self, req):
+        return self._can_be_by(
+            req, "change_user_articles", "change_users_articles"
+        )
+
+    def can_be_deleted_by(self, req):
+        return self._can_be_by(
+            req, "del_user_articles", "del_users_articles"
+        )
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -90,7 +103,6 @@ class Category(models.Model):
             return super().save(*args, **kwargs)
         else:
             return super().save(*args, **kwargs)
-        return super().save(*args, **kwargs)
 
     class Meta:
         permissions = (

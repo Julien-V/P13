@@ -3,7 +3,10 @@
 <main class="w-100" id="main-article">
 	<div class="container-fluid h-100" id="main-article-container">
 		{% if can_be_edited_by_user %}
-		<a href="/edit{{ article.get_absolute_url }}" class="btn btn-primary btn-purple">Éditer l'article</a>
+		<a href="/edit{{ article.get_absolute_url }}"><i class="bi bi-pencil-square"></i>Éditer l'article</a>
+		{% endif %}
+		{% if can_be_deleted_by_user %}
+		<a href="/delete{{ article.get_absolute_url }}"><i class="bi bi-trash"></i>Supprimer l'article</a>
 		{% endif %}
 		<h2>{{ article.title }}</h2>
 		{% if article.is_anonymous %}

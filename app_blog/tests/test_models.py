@@ -50,3 +50,45 @@ def test_article_get_edit_url(make_test_articles):
         for article in articles:
             edit_url = f"/edit/article/{article.slug}/"
             assert article.get_edit_url() == edit_url
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_admi", True,),
+        ("test_unknown", False,),
+        ("test_cons", False,),
+    ]
+)
+def test_article_can_be_edited_by(make_test_articles, username, expected):
+    """Tests Article._can_be_edited_by(req)"""
+    class Req:
+        user = username
+    articles = Article.objects.all()
+    if not len(articles):
+        pytest.fail("No articles")
+    else:
+        article = articles[0]
+        assert article.can_be_edited_by(Req) == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_admi", True,),
+        ("test_unknown", False,),
+        ("test_cons", False,),
+    ]
+)
+def test_article_can_be_deleted_by(make_test_articles, username, expected):
+    """Tests Article._can_be_deleted_by(req)"""
+    class Req:
+        user = username
+    articles = Article.objects.all()
+    if not len(articles):
+        pytest.fail("No articles")
+    else:
+        article = articles[0]
+        assert article.can_be_deleted_by(Req) == expected

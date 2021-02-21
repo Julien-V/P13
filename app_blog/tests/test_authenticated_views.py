@@ -169,3 +169,29 @@ def test_edit_article_wrong_user(client, make_test_articles):
     article = articles[0]
     response = client.get(article.get_edit_url())
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, password, expected, is_deleted",
+    [
+        ("test_admi", "password_admi", {"code": 302, "url": "/"}, True,),
+        ("test_cons", "password_cons", {"code": 404, "url": None}, False,),
+        ("test_fake", "password_fake", {"code": 302, "url": None}, False,),
+    ]
+)
+def test_del_article(
+        client, make_test_articles,
+        username, password, expected, is_deleted):
+    """Tests del_article view by deleting an article"""
+    client.login(username=username, password=password)
+    articles = Article.objects.all()
+    article = articles[0]
+    article_slug = article.slug
+    response = client.get(article.get_delete_url())
+    assert response.status_code == expected["code"]
+    if expected["url"]:
+        assert response.url == expected["url"]
+    if is_deleted:
+        with pytest.raises(Article.DoesNotExist):
+            Article.objects.get(slug=article_slug)

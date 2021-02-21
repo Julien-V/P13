@@ -217,6 +217,7 @@ def show_article(req, slug):
     context = {
         "article": article,
         "can_be_edited_by_user": article.can_be_edited_by(req),
+        "can_be_deleted_by_user": article.can_be_deleted_by(req),
         "content": unescape(article.content)
     }
     context = {**context, **navbar_init()}
@@ -306,6 +307,20 @@ def edit_article(req, slug):
         }
         context = {**context, **navbar_init()}
         return render(req, "edit_article.html", context)
+
+
+@login_required
+@perm_required(['del_user_articles'])
+def del_article(req, slug):
+    try:
+        article = Article.objects.get(slug=slug)
+    except Article.DoesNotExist:
+        return HttpResponseNotFound()
+    if not article.can_be_deleted_by(req):
+        return HttpResponseNotFound()
+    else:
+        article.delete()
+    return redirect(reverse("home"))
 
 
 @login_required
