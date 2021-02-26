@@ -195,3 +195,27 @@ def test_del_article(
     if is_deleted:
         with pytest.raises(Article.DoesNotExist):
             Article.objects.get(slug=article_slug)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, password, expected, link_displayed",
+    [
+        ("test_admi", "password_admi", {"code": 200, "url": None}, True,),
+        ("test_cons", "password_cons", {"code": 200, "url": None}, False,),
+        ("test_fake", "password_fake", {
+            "code": 302, "url": "/login?next=/dashboard"}, False,),
+    ]
+)
+def test_dashboard(
+        client, make_test_users,
+        username, password, expected, link_displayed):
+    """Tests status_code for /dashboard"""
+    client.login(username=username, password=password)
+    if link_displayed:
+        response = client.get(reverse('home'))
+        assert "/dashboard" in response.content.decode()
+    response = client.get(reverse('dashboard'))
+    assert response.status_code == expected["code"]
+    if expected["url"]:
+        assert response.url == expected['url']

@@ -353,3 +353,8 @@ header.masthead > div.container-fluid {
   font-weight: normal;
   font-style: italic;
 }
+
+/* /dashboard/ */
+#main-dashboard {
+  padding-top: 5%;
+}

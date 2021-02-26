@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css"/>
+{% endblock %}
+{% block page_content %}
+<main id="main-dashboard">
+<ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">Utilisateurs</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="articles-tab" data-bs-toggle="tab" data-bs-target="#articles" type="button" role="tab" aria-controls="articles" aria-selected="false">Articles</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false">Commentaires</button>
+    </li>
+</ul>
+<div class="tab-content" id="dashboard-content">
+    {% if users %}
+    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+		<table id="d-users-list" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nom d'utilisateur</th>
+                    <th>Email</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Groupe</th>
+                    <th>Dernière connexion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="d-user-detail">
+                    <th id="d-username">{{ user.user.username }}</th>
+                    <th id="d-email">{{ user.user.email }}</th>
+                    <th id="d-last_name">{{ user.user.last_name }}</th>
+                    <th id="d-first_name">{{ user.user.first_name }}</th>
+                    <th id="d-group">{{ user.groups }}</th>
+                    <th id="d-last_login">{{ user.user.last_login }}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+    </div>
+    {% endif %}
+    {% if articles %}
+    <div class="tab-pane fade" id="articles" role="tabpanel" aria-labelledby="articles-tab">
+        <table id="d-articles-list" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Date d'ajout</th>
+                    <th>Auteur</th>
+                    <th>Catégorie(s)</th>
+                    <th>Editer</th>
+                    <th>Supprimer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in articles %}
+                <tr class="d-article-detail">
+                    <th id="d-title">{{ article.article.title }}</th>
+                    <th id="d-description">{{ article.article.description }}</th>
+                    <th id="d-created">{{ article.article.created }}</th>
+                    <th id="d-writer">{{ article.article.writer }}</th>
+                    <th id="d-categories">{{ article.categories }}</th>
+                    {% if article.can_be_edited %}
+                    <th id="d-edit-button">
+                        <a href="{{ article.article.get_edit_url }}">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </th>
+                    {% else %}
+                    <th id="d-edit-button">Non</th>
+                    {% endif %}
+                    {% if article.can_be_deleted %}
+                    <th id="d-delete-button">
+                        <a href="{{ article.article.get_delete_url }}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </th>
+                    {% else %}
+                    <th id="d-delete-button">Non</th>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+    </div>
+    {% endif %}
+    {% if comments %}
+    <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+        <table id="d-comments-list" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Article</th>
+                    <th>Auteur</th>
+                    <th>Date d'ajout</th>
+                    <th>Commentaire</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in comments %}
+                <tr class="d-comment-detail">
+                    <th id="d-article"><a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a></th>
+                    <th id="d-writer">{{ comment.writer }}</th>
+                    <th id="d-created">{{ comment.created }}</th>
+                    <th id="d-content">{{ comment.content }}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+    </div>
+    {% endif %}
+</div>
+</main>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $("table[id^=d-][id$=-list]").each(function() {
+        console.log($(this))
+        $(this).DataTable({
+		    "language": {
+		    	"url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/French.json",
+			    "autoWidth": false
+		    }
+	    });
+    })
+} );
+</script>
+{% endblock %}

@@ -15,7 +15,7 @@ from html import unescape
 from app_blog.forms import ConnectionForm, RegisterForm
 from app_blog.forms import AddArticleForm, EditArticleForm, AddCommentForm
 
-from app_blog.models import Article, Category
+from app_blog.models import Article, Category, Comment
 
 from app_blog.utils import has_perm_list, perm_required
 from app_blog.utils import redirect_next
@@ -31,7 +31,8 @@ def navbar_init(req):
     """
     context = {
         "navbar_cat_list": list(),
-        "navbar_sub_cat_list": list()
+        "navbar_sub_cat_list": list(),
+        "dashboard_access": has_perm_list(req, ["view_category_all"])
     }
     categories = Category.objects.all()
     for cat in categories:
@@ -304,6 +305,31 @@ def del_article(req, slug):
         article.delete()
         messages.success(req, "Article supprimé.")
     return redirect(reverse("home"))
+
+
+@login_required
+@perm_required(['view_category_all'])
+def dashboard(req):
+    users = [{
+        "user": user,
+        "groups": "".join(f"{group.name};" for group in user.groups.all())
+    } for user in User.objects.all()]
+    articles = [{
+        "article": article,
+        "can_be_edited": article.can_be_edited_by(req),
+        "can_be_deleted": article.can_be_deleted_by(req),
+        "categories": "".join(
+            f"{cat.name};" for cat in article.category_set.all()
+        )
+    } for article in Article.objects.all()]
+    comments = Comment.objects.all()
+    context = {
+        "users": users,
+        "articles": articles,
+        "comments": comments
+    }
+    context = {**context, **navbar_init(req)}
+    return render(req, "dashboard.html", context)
 
 
 @login_required
