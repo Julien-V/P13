@@ -95,35 +95,4 @@
 		</div>
 	</div>
 </header>
-{% if user.is_authenticated %}
-<section class="page-section h-100">
-	<div class="container-fluid h-100">
-		<div class="row h-100" id="page-section-row">
-			<div class="col-lg-8 section-panel" id="section-panel-lang">
-				<h3>Langues</h3>
-				<button class="btn btn-primary btn-purple btn-pulse">Anglais</button>
-				<button class="btn btn-primary btn-purple btn-pulse">Allemand</button>
-				<button class="btn btn-primary btn-purple btn-pulse">Espagnol</button>
-				<button class="btn btn-primary btn-purple btn-pulse">Italien</button>
-				<button class="btn btn-primary btn-purple btn-pulse">Russe</button>
-			</div>
-			<div class="col-lg-4 section-panel" id="section-panel-res">
-				<h3>Ressources</h3>
-			</div>
-		</div>
-	</div>
-</section>
-<section class="page-section">
-	<div class="container-fluid">
-		<div class="row h-100">
-			<div class="col-lg-4 section-panel" id="section-panel-teachers">
-				<h3>Salle des professeurs</h3>
-			</div>
-			<div class="col-lg-8 section-panel" id="section-panel-tools">
-				<h3>Outils numériques</h3>
-			</div>
-		</div>
-	</div>
-</section>
-{% endif %}
 {% endblock %}
