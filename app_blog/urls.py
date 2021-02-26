@@ -14,6 +14,7 @@ urlpatterns = [
     path('category/<slug:slug>/', views.list_by_category, name="category"),
     path('edit/article/<slug:slug>/', views.edit_article, name="edit_article"),
     path('delete/article/<slug:slug>/', views.del_article, name="del_article"),
+    path('del_comment', views.del_comment, name="del_comment"),
     path('dashboard', views.dashboard, name="dashboard"),
     path("login", views.log_in, name="login"),
     path("sign_up", views.sign_up, name="sign_up"),

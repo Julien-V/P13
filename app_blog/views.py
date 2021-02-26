@@ -207,36 +207,19 @@ def show_article(req, slug):
     except Article.DoesNotExist:
         article = None
         return HttpResponseNotFound()
+    comments = [{
+        "comment": comment,
+        "can_be_deleted": comment.can_be_deleted_by(req),
+    } for comment in article.comment_set.all()]
     context = {
         "article": article,
         "can_be_edited_by_user": article.can_be_edited_by(req),
         "can_be_deleted_by_user": article.can_be_deleted_by(req),
-        "content": unescape(article.content)
+        "content": unescape(article.content),
+        "comments": comments
     }
     context = {**context, **navbar_init(req)}
     return render(req, "article.html", context)
-
-
-@login_required
-@perm_required(["add_comment"])
-def add_comment(req):
-    if req.method == "POST":
-        # get user
-        user = User.objects.get(username=req.user)
-        try:
-            article = Article.objects.get(slug=req.POST['article_slug'])
-        except Article.DoesNotExist:
-            print(f"Article.DoesNotExist : {req.POST['article_slug']}")
-            return HttpResponseNotFound()
-        fields = {
-            "writer": user,
-            "article": article,
-            "content": unescape(req.POST["content"])
-        }
-        form = AddCommentForm(fields)
-        if form.is_valid():
-            form.save()
-        return redirect(article.get_absolute_url())
 
 
 @login_required
@@ -310,6 +293,55 @@ def del_article(req, slug):
 
 
 @login_required
+@perm_required(["add_comment"])
+def add_comment(req):
+    if req.method == "POST":
+        # get user
+        user = User.objects.get(username=req.user)
+        try:
+            article = Article.objects.get(slug=req.POST['article_slug'])
+        except Article.DoesNotExist:
+            print(f"Article.DoesNotExist : {req.POST['article_slug']}")
+            return HttpResponseNotFound()
+        fields = {
+            "writer": user,
+            "article": article,
+            "content": unescape(req.POST["content"])
+        }
+        form = AddCommentForm(fields)
+        if form.is_valid():
+            form.save()
+        return redirect(article.get_absolute_url())
+
+
+@login_required
+@perm_required(['del_user_comment'])
+def del_comment(req):
+    try:
+        id_comment = req.GET["id"]
+    except KeyError:
+        messages.error(
+            req, "Précisez le commentaire à supprimer"
+        )
+        return HttpResponseNotFound()
+    try:
+        comment = Comment.objects.get(id=id_comment)
+    except Comment.DoesNotExist:
+        messages.error(
+            req, f"Impossible de trouver le commentaire id={id_comment}")
+        return HttpResponseNotFound()
+    article_url = comment.article.get_absolute_url()
+    if not comment.can_be_deleted_by(req):
+        messages.error(
+            req, "Vous n'avez pas le droit de supprimer ce commentaire.")
+        return HttpResponseNotFound()
+    else:
+        comment.delete()
+        messages.success(req, "Commentaire supprimé.")
+    return redirect(article_url)
+
+
+@login_required
 @perm_required(['view_category_all'])
 def dashboard(req):
     users = [{
@@ -324,7 +356,10 @@ def dashboard(req):
             f"{cat.name};" for cat in article.category_set.all()
         )
     } for article in Article.objects.all()]
-    comments = Comment.objects.all()
+    comments = [{
+        "comment": comment,
+        "can_be_deleted": comment.can_be_deleted_by(req),
+    } for comment in Comment.objects.all()]
     context = {
         "users": users,
         "articles": articles,

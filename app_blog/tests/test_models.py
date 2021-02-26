@@ -3,8 +3,11 @@
 
 import pytest
 
-from app_blog.models import Article, Category
+from app_blog.models import Article, Category, Comment
+
 from django.contrib.auth.models import User
+
+from django.shortcuts import reverse
 
 
 @pytest.mark.django_db
@@ -92,3 +95,36 @@ def test_article_can_be_deleted_by(make_test_articles, username, expected):
     else:
         article = articles[0]
         assert article.can_be_deleted_by(Req) == expected
+
+
+@pytest.mark.django_db
+def test_comment_get_delete_url(make_test_comment):
+    """Tests Comment.get_delete_url()"""
+    comments = Comment.objects.all()
+    if not len(comments):
+        pytest.fail("No comments")
+    else:
+        for comment in comments:
+            del_url = f"{reverse('del_comment')}?id={comment.id}"
+            assert comment.get_delete_url() == del_url
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_admi", True,),
+        ("test_unknown", False,),
+        ("test_aute", True,),
+    ]
+)
+def test_comment_can_be_deleted_by(make_test_comment, username, expected):
+    """Tests Comment.can_be_deleted_by(req)"""
+    class Req:
+        user = username
+    comments = Comment.objects.all()
+    if not len(comments):
+        pytest.fail("No comments")
+    else:
+        comment = comments[0]
+        assert comment.can_be_deleted_by(Req) == expected

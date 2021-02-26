@@ -289,6 +289,12 @@ header.masthead > div.container-fluid {
   margin-top:1%;
 }
 
+.comment {
+  padding-top: 1%;
+  padding-bottom: 1%;
+  border-bottom: var(--color-yellow) solid 1px;
+}
+
 /* /about */
 .twocols {
   padding-top:2%;

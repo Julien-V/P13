@@ -33,10 +33,14 @@
 		</div>
 		<hr>
 		{% if article.comment_set.all %}
-		{% for comment in article.comment_set.all %}
-		<div class="row">
-			<h4>{{ comment.writer.username }}</h4><p class="text-muted">{{ comment.created }}</p>
-			<p>{{ comment.content }}</p>
+		{% for comment in comments %}
+		<div class="row comment">
+			<h4>{{ comment.comment.writer.username }}</h4>
+			<p class="text-muted">{{ comment.comment.created }}</p>
+			<p>{{ comment.comment.content }}</p>
+			{% if comment.can_be_deleted %}
+			<a class="text-end" href="{{ comment.comment.get_delete_url }}"><i class="bi bi-trash"></i>Supprimer</a>
+			{% endif %}
 		</div>
 		{% endfor %}
 		{% else %}

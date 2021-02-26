@@ -145,6 +145,24 @@ class Comment(models.Model):
         self.updated = timezone.now()
         return super().save(*args, **kwargs)
 
+    def get_delete_url(self):
+        return f"/del_comment?id={self.id}"
+
+    def _can_be_by(self, req, first_perm, second_perm):
+        try:
+            user = User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return False
+        if self.writer == user:
+            return has_perm_list(req, [first_perm])
+        else:
+            return has_perm_list(req, [second_perm])
+
+    def can_be_deleted_by(self, req):
+        return self._can_be_by(
+            req, "del_user_comment", "del_users_comment"
+        )
+
     class Meta:
         permissions = (
             ("edit_comment", "Can edit a comment"),

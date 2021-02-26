@@ -199,6 +199,33 @@ def test_del_article(
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
+    "username, password, expected, is_deleted",
+    [
+        ("test_admi", "password_admi", {"code": 302, "url": ""}, True,),
+        ("test_aute", "password_aute", {"code": 302, "url": ""}, True,),
+        ("test_fake", "password_fake", {"code": 302, "url": None}, False,),
+    ]
+)
+def test_del_comment(
+        client, make_test_comment,
+        username, password, expected, is_deleted):
+    """Tests del_comment view by deleting an article"""
+    client.login(username=username, password=password)
+    comments = Comment.objects.all()
+    comment = comments[0]
+    comment_id = comment.id
+    article_url = comment.article.get_absolute_url()
+    response = client.get(comment.get_delete_url())
+    assert response.status_code == expected["code"]
+    if expected["url"]:
+        assert response.url == article_url
+    if is_deleted:
+        with pytest.raises(Comment.DoesNotExist):
+            Comment.objects.get(id=comment_id)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
     "username, password, expected, link_displayed",
     [
         ("test_admi", "password_admi", {"code": 200, "url": None}, True,),

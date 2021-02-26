@@ -6,7 +6,7 @@ import pytest
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 
-from app_blog.models import Article, Category
+from app_blog.models import Article, Category, Comment
 
 
 @pytest.fixture
@@ -84,3 +84,22 @@ def make_test_articles(get_articles_fields, make_test_users):
         article.save()
         cat.articles.add(article)
         cat.save()
+
+
+@pytest.fixture
+def make_test_comment(make_test_users, make_test_articles):
+    """This fixture add a comment in all articles created
+    in make_test_articles_fixture
+    """
+    username = "test_aute"
+    user = User.objects.get(username=username)
+    # add comments
+    articles = Article.objects.all()
+    for article in articles:
+        fields = {
+            "content": str(article.get_edit_url()),
+            "writer": user,
+            "article": article,
+        }
+        comment = Comment(**fields)
+        comment.save()

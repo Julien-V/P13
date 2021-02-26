@@ -55,7 +55,7 @@
                     <th>Auteur</th>
                     <th>Catégorie(s)</th>
                     <th>Editer</th>
-                    <th>Supprimer</th>
+                    <th>Supp.</th>
                 </tr>
             </thead>
             <tbody>
@@ -99,15 +99,25 @@
                     <th>Auteur</th>
                     <th>Date d'ajout</th>
                     <th>Commentaire</th>
+                    <th>Supp.</th>
                 </tr>
             </thead>
             <tbody>
                 {% for comment in comments %}
                 <tr class="d-comment-detail">
-                    <th id="d-article"><a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a></th>
-                    <th id="d-writer">{{ comment.writer }}</th>
-                    <th id="d-created">{{ comment.created }}</th>
-                    <th id="d-content">{{ comment.content }}</th>
+                    <th id="d-article"><a href="{{ comment.comment.article.get_absolute_url }}">{{ comment.comment.article.title }}</a></th>
+                    <th id="d-writer">{{ comment.comment.writer }}</th>
+                    <th id="d-created">{{ comment.comment.created }}</th>
+                    <th id="d-content">{{ comment.comment.content }}</th>
+                    {% if comment.can_be_deleted %}
+                    <th id="d-delete-button">
+                        <a href="{{ comment.comment.get_delete_url }}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </th>
+                    {% else %}
+                    <th id="d-delete-button">Non</th>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
