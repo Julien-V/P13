@@ -186,16 +186,17 @@ def add_article(req):
             messages.success(req, 'Article ajouté !')
             return redirect(article.get_absolute_url())
         else:
-            error = True
-        return redirect(reverse("add_article"))
-    else:
-        categories = list()
-        for cat in Category.objects.all():
-            if cat.can_be_viewed_by(req):
-                categories.append(cat)
-        context = {"categories": categories}
-        context = {**context, **navbar_init(req)}
-        return render(req, "add_article.html", context)
+            error = form.errors
+    categories = list()
+    for cat in Category.objects.all():
+        if cat.can_be_viewed_by(req):
+            categories.append(cat)
+    context = {
+        "categories": categories,
+        "error": error
+    }
+    context = {**context, **navbar_init(req)}
+    return render(req, "add_article.html", context)
 
 
 @login_required
@@ -234,13 +235,14 @@ def add_comment(req):
         }
         form = AddCommentForm(fields)
         if form.is_valid():
-            comment = form.save()
+            form.save()
         return redirect(article.get_absolute_url())
 
 
 @login_required
 @perm_required(['add_article'])
 def edit_article(req, slug):
+    error = False
     # get article from slug
     try:
         article = Article.objects.get(slug=slug)
@@ -274,19 +276,19 @@ def edit_article(req, slug):
             messages.success(req, "Article modifié !")
             return redirect(article.get_absolute_url())
         else:
-            error = True
-    else:
-        categories = list()
-        for cat in Category.objects.all():
-            if cat.can_be_viewed_by(req):
-                categories.append(cat)
-        context = {
-            "content": "".join(x for x in article.content.splitlines()),
-            "categories": categories,
-            "article": article,
-        }
-        context = {**context, **navbar_init(req)}
-        return render(req, "edit_article.html", context)
+            error = form.errors
+    categories = list()
+    for cat in Category.objects.all():
+        if cat.can_be_viewed_by(req):
+            categories.append(cat)
+    context = {
+        "content": "".join(x for x in article.content.splitlines()),
+        "categories": categories,
+        "article": article,
+        "error": error
+    }
+    context = {**context, **navbar_init(req)}
+    return render(req, "edit_article.html", context)
 
 
 @login_required

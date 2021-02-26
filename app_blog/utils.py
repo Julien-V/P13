@@ -84,7 +84,6 @@ def get_user_groups_perm(req):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        print("get_user_groups_perm : User.DoesNotExist")
         return None, None, None
     groups = user.groups.all()
     user_perms = list()
@@ -98,7 +97,6 @@ def get_user_groups_perm(req):
 def redirect_next(req):
     """This function checks"""
     nxt = req.GET.get("next", None)
-    print(nxt)
     if nxt is None:
         return redirect("/")
     elif url_has_allowed_host_and_scheme(
