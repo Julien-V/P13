@@ -202,10 +202,14 @@ def add_article(req):
 @login_required
 @perm_required(["view_article_public"])
 def show_article(req, slug):
+    """This views gets an article from its slug,
+    checks if current user can view this article and renders it.
+    """
     try:
         article = Article.objects.get(slug=slug)
     except Article.DoesNotExist:
-        article = None
+        return HttpResponseNotFound()
+    if not article.can_be_viewed_by(req):
         return HttpResponseNotFound()
     comments = [{
         "comment": comment,

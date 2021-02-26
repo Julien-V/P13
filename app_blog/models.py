@@ -55,6 +55,24 @@ class Article(models.Model):
         return self._can_be_by(
             req, "del_user_articles", "del_users_articles"
         )
+    
+    def can_be_viewed_by(self, req):
+        """This method checks if req.user can view article's categories
+        and checks if req.user can access public or not public article.
+
+        :param req: request object.
+        
+        :return: boolean, article can/can't be viewed by req.user.
+        """
+        cat_list = self.category_set.all()
+        clearance_list = [cat.can_be_viewed_by(req) for cat in cat_list]
+        if False in clearance_list:
+            return False
+        else:
+            if self.is_public:
+                return True
+            else:
+                return has_perm_list(req, ["view_article"])
 
     def save(self, *args, **kwargs):
         if not self.id:
