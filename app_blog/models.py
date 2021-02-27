@@ -187,3 +187,19 @@ class Comment(models.Model):
             ("del_user_comment", "Can delete its own comments"),
             ("del_users_comment", "Can delete other users' comments")
         )
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, unique=True)
+    description = models.TextField(null=True)
+    email_visible = models.BooleanField(default=False)
+    nb_articles = models.BigIntegerField(default=0)
+    nb_comments = models.BigIntegerField(default=0)
+
+    def update_meters(self):
+        articles = Article.objects.filter(writer=self.user)
+        comments = Comment.objects.filter(writer=self.user)
+        self.nb_articles = len(articles)
+        self.nb_comments = len(comments)
+        self.save()

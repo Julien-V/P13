@@ -6,7 +6,7 @@ import pytest
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 
-from app_blog.models import Article, Category, Comment
+from app_blog.models import Article, Category, Comment, Profile
 
 
 @pytest.fixture
@@ -42,6 +42,9 @@ def make_test_users():
             pytest.fail(f"{group} DoesNotExist")
         # add user to group
         group_obj.user_set.add(user)
+        # add profile
+        profile = Profile(user=user)
+        profile.save()
 
 
 @pytest.fixture

@@ -64,4 +64,15 @@ class Migration(migrations.Migration):
                 'permissions': (('edit_comment', 'Can edit a comment'), ('del_user_comment', 'Can delete its own comments'), ('del_users_comment', "Can delete other users' comments")),
             },
         ),
+        migrations.CreateModel(
+            name='Profile',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('description', models.TextField(null=True)),
+                ('email_visible', models.BooleanField(default=False)),
+                ('nb_articles', models.BigIntegerField(default=0)),
+                ('nb_comments', models.BigIntegerField(default=0)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
     ]

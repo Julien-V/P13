@@ -15,7 +15,7 @@ from html import unescape
 from app_blog.forms import ConnectionForm, RegisterForm
 from app_blog.forms import AddArticleForm, EditArticleForm, AddCommentForm
 
-from app_blog.models import Article, Category, Comment
+from app_blog.models import Article, Category, Comment, Profile
 
 from app_blog.utils import has_perm_list, perm_required
 from app_blog.utils import redirect_next
@@ -95,6 +95,8 @@ def sign_up(req):
                     group = Group.objects.get(name="Abonné")
                     user.groups.add(group)
                     user.save()
+                    profile = Profile(user=user)
+                    profile.save()
                     messages.success(
                         req, f"Nouvel utilisateur {user.username} ajouté.")
                     return redirect(reverse('login'))
@@ -179,6 +181,7 @@ def add_article(req):
             for cat in cat_list:
                 cat.articles.add(article)
                 cat.save()
+            user.profile.update_meters()
             messages.success(req, 'Article ajouté !')
             return redirect(article.get_absolute_url())
         else:
@@ -256,6 +259,7 @@ def edit_article(req, slug):
             for cat in cat_list:
                 cat.articles.add(article)
                 cat.save()
+            user.profile.update_meters()
             messages.success(req, "Article modifié !")
             return redirect(article.get_absolute_url())
         else:
@@ -287,7 +291,9 @@ def del_article(req, slug):
             req, "Vous n'avez pas le droit de supprimer cet article.")
         return HttpResponseNotFound()
     else:
+        user = article.writer
         article.delete()
+        user.profile.update_meters()
         messages.success(req, "Article supprimé.")
     return redirect(reverse("home"))
 
@@ -311,6 +317,7 @@ def add_comment(req):
         form = AddCommentForm(fields)
         if form.is_valid():
             form.save()
+            user.profile.update_meters()
         return redirect(article.get_absolute_url())
 
 
@@ -336,7 +343,9 @@ def del_comment(req):
             req, "Vous n'avez pas le droit de supprimer ce commentaire.")
         return HttpResponseNotFound()
     else:
+        user = comment.writer
         comment.delete()
+        user.profile.update_meters()
         messages.success(req, "Commentaire supprimé.")
     return redirect(article_url)
 

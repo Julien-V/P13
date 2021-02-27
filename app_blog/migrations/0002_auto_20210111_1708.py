@@ -30,7 +30,8 @@ def make_groups(apps, schema_editor):
         "add_article", "add_anonymous_article",
         "view_article", "del_user_articles",
         "change_user_articles", "add_comment",
-        "edit_comment", "del_user_comment"
+        "edit_comment", "del_user_comment",
+        "view_profile"
     ]
 
     base_pp = base_p + [
@@ -42,7 +43,7 @@ def make_groups(apps, schema_editor):
     ]
 
     experts = base + [
-        "view_article", "view_category_all_wo_c_f",
+        "view_article", "view_category_all_wo_c_f", "view_profile"
     ]
     admin = base_pp + conseillers + [
         "del_users_articles", "change_users_articles", "add_category",

@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import reverse
 
+from app_blog.models import Profile
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
@@ -63,8 +65,11 @@ def test_sign_up(client):
     assert response.url == "/login"
     try:
         user = User.objects.get(username=fields["username"])
+        Profile.objects.get(user=user)
     except User.DoesNotExist:
         pytest.fail("User DoesNotExist")
+    except Profile.DoesNotExist:
+        pytest.fail("Profile DoesNotExist")
     groups = user.groups.all()
     groups_name = [group.name for group in groups]
     assert "Abonné" in groups_name

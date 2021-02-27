@@ -128,3 +128,16 @@ def test_comment_can_be_deleted_by(make_test_comment, username, expected):
     else:
         comment = comments[0]
         assert comment.can_be_deleted_by(Req) == expected
+
+
+@pytest.mark.django_db
+def test_profile_update_meters(make_test_articles, make_test_comment):
+    """Tests Profile.update_meters()"""
+    user_admi = User.objects.get(username="test_admi")
+    user_aute = User.objects.get(username="test_aute")
+    nb_comments = user_aute.profile.nb_comments
+    nb_articles = user_admi.profile.nb_articles
+    user_aute.profile.update_meters()
+    user_admi.profile.update_meters()
+    assert nb_articles < user_admi.profile.nb_articles
+    assert nb_comments < user_aute.profile.nb_comments

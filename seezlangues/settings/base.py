@@ -176,13 +176,18 @@ APP_BLOG_CATEGORY_HIERARCHY = [
         "name": 'Langues',
         "group": None,
         "sub_cat": [
-            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
-                ['Anglais', None, None],
-                ['Espagnol', None, None],
-                ['Allemand', None, None],
-                ['Italien', None, None],
-                ['Russe', None, None]]
+            dict(name=x, group=None, sub_cat=None) for x in [
+                'Anglais', 'Espagnol', 'Allemand', 'Italien', 'Russe',
             ]
+        ]
+    }, {
+        "name": "Niveaux",
+        "group": None,
+        "sub_cat": [
+            dict(name=x, group=None, sub_cat=None) for x in [
+                '6ème', '5ème', '4ème', '3ème', '2nde', '1ère', 'Tle',
+            ]
+        ]
     }, {
         "name": 'Ressources',
         "group": None,
@@ -218,19 +223,5 @@ APP_BLOG_CATEGORY_HIERARCHY = [
                 ['Formations', grps(0, 1, 2, 3, 4), None],
                 ['Évènements', None, None]]
             ]
-    }, {
-        "name": "Niveaux",
-        "group": None,
-        "sub_cat": [
-            dict(name=x[0], group=x[1], sub_cat=x[2]) for x in [
-                ['6ème', None, None],
-                ['5ème', None, None],
-                ['4ème', None, None],
-                ['3ème', None, None],
-                ['2nde', None, None],
-                ['1ère', None, None],
-                ['Tle', None, None],
-            ]
-        ]
-    }
+    },
 ]
