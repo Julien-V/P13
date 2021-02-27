@@ -10,9 +10,12 @@
 		{% endif %}
 		<h2>{{ article.title }}</h2>
 		{% if article.is_anonymous %}
-		<p>Dernière modification le {{ article.edited }} par Anonyme</p>
+		<p>Ajouté le {{ article.created }} par Anonyme</p>
 		{% else %}
-		<p>Dernière modification le {{ article.edited }} par {{ article.writer }}</p>
+		<p>Ajouté le {{ article.created }} par {{ article.writer }}</p>
+		{% endif %}
+		{% if article.edited %}
+		<p>Modifié le {{ article.edited }}</p>
 		{% endif %}
 		<p class="text-muted" id="main-article-description">{{ article.description }}</p>
 		<div id="main-article-content">

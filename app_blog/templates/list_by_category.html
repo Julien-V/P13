@@ -45,9 +45,9 @@
 					</h4>
 				</th>
 				{% if article.is_anonymous %}
-				<th id="writer">{{ article.writer }}</th>
-				{% else %}
 				<th id="writer">Anonyme</th>
+				{% else %}
+				<th id="writer">{{ article.writer }}</th>
 				{% endif %}
 				<th class="text-muted" id="created">({{ article.created }})</th>
 				<th id="description">{{ article.description }}</th>

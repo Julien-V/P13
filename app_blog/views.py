@@ -129,25 +129,21 @@ def list_by_category(req, slug):
     try:
         # get cat
         cat = Category.objects.get(slug=slug)
-        if not cat.can_be_viewed_by(req):
-            messages.error(
-                req,
-                "Vous n'avez pas le droit de voir cette catégorie."
-            )
-            return HttpResponseNotFound()
     except Category.DoesNotExist:
         cat = None
+        return HttpResponseNotFound()
+    if not cat.can_be_viewed_by(req):
+        messages.error(
+            req,
+            "Vous n'avez pas le droit de voir cette catégorie."
+        )
         return HttpResponseNotFound()
     # get articles
     articles = list(cat.articles.all())
     if not len(articles):
         articles = None
-    if not has_perm_list(req, ["view_article"]):
-        if has_perm_list(req, ["view_article_public"]):
-            if articles is not None:
-                articles = [x for x in articles if x.is_public]
-        else:
-            return redirect("/")
+    else:
+        articles = [x for x in articles if x.can_be_viewed_by(req)]
     context = {
         "articles": articles,
         "category": cat
