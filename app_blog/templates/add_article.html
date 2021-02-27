@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load custom_filters %}
 {% block custom_head %}
 <script src="/static/tinymce/js/tinymce/tinymce.min.js"></script>
 <script type="text/javascript">
@@ -46,7 +47,7 @@
     				</label>
     				{% if cat.sub_category.all %}
     				<ul id="main-add-article-sub-category-ul">
-    					{% for sub_cat in cat.sub_category.all %}
+    					{% for sub_cat in cat.sub_category.all|order_by_id %}
     					<li>
     						<label for="cat-{{ cat.id }}-{{ sub_cat.id }}">
     							<input type="checkbox" name="subcat-{{ sub_cat.name }}" id="cat-{{ cat.id }}-{{ sub_cat.id }}"> {{ sub_cat.name }}

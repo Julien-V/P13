@@ -34,7 +34,7 @@ def navbar_init(req):
         "navbar_sub_cat_list": list(),
         "dashboard_access": has_perm_list(req, ["view_category_all"])
     }
-    categories = Category.objects.all()
+    categories = Category.objects.all().order_by("id")
     for cat in categories:
         if cat.can_be_viewed_by(req):
             if not cat.parent_category:
@@ -184,7 +184,7 @@ def add_article(req):
         else:
             error = form.errors
     categories = list()
-    for cat in Category.objects.all():
+    for cat in Category.objects.all().order_by("id"):
         if cat.can_be_viewed_by(req):
             categories.append(cat)
     context = {
@@ -261,7 +261,7 @@ def edit_article(req, slug):
         else:
             error = form.errors
     categories = list()
-    for cat in Category.objects.all():
+    for cat in Category.objects.all().order_by("id"):
         if cat.can_be_viewed_by(req):
             categories.append(cat)
     context = {
