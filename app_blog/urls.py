@@ -16,6 +16,7 @@ urlpatterns = [
     path('delete/article/<slug:slug>/', views.del_article, name="del_article"),
     path('del_comment', views.del_comment, name="del_comment"),
     path('dashboard', views.dashboard, name="dashboard"),
+    path('user/<str:username>/', views.show_profile, name="profile"),
     path("login", views.log_in, name="login"),
     path("sign_up", views.sign_up, name="sign_up"),
     path('logout', views.log_out, name="logout")

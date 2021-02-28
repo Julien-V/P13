@@ -55,7 +55,7 @@ header.masthead > div.container-fluid {
   }
 }
 @media (min-width: 992px) {
-  header.masthead {
+  header.masthead, #main-profile {
     height: 100vh;
     min-height: 40rem;
     padding-bottom: 0;
@@ -363,4 +363,13 @@ header.masthead > div.container-fluid {
 /* /dashboard/ */
 #main-dashboard {
   padding-top: 5%;
+}
+
+/* /user/<str:username>/ */
+#main-profile {
+  padding-top:5%;
+}
+
+.tab-pane {
+  padding-top: 2%;
 }

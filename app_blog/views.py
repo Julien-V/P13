@@ -41,6 +41,8 @@ def navbar_init(req):
                 context["navbar_cat_list"].append(cat)
             else:
                 context["navbar_sub_cat_list"].append(cat.name)
+    if req.user:
+        context['username'] = req.user
     return context
 
 
@@ -376,6 +378,62 @@ def dashboard(req):
     }
     context = {**context, **navbar_init(req)}
     return render(req, "dashboard.html", context)
+
+
+@login_required
+def show_profile(req, username):
+    user_req = User.objects.get(username=req.user)
+    try:
+        user_obj = User.objects.get(username=username)
+        user_obj.profile
+    except User.DoesNotExist:
+        messages.error(
+            req, f"Impossible de trouver l'utilisateur {username}.")
+        return HttpResponseNotFound()
+    except Profile.DoesNotExist:
+        messages.error(
+            req,
+            f"Impossible de trouver le profil de l'utilisateur {username}"
+        )
+        return HttpResponseNotFound()
+    # get articles
+    articles = Article.objects.filter(writer=user_obj)
+    # transform QuerySet in a list of dict allowing us to use
+    # Article methods
+    articles = [{
+        "article": article,
+        "can_be_edited": article.can_be_edited_by(req),
+        "can_be_deleted": article.can_be_deleted_by(req),
+        "categories": "".join(
+            f"{cat.name};" for cat in article.category_set.all()
+        )
+    } for article in articles if article.can_be_viewed_by(req)]
+    # get comments
+    comments = Comment.objects.filter(writer=user_obj)
+    # transform QuerySet in a list of dict allowing us to use
+    # comments methods
+    comments = [{
+        "comment": comment,
+        "can_be_deleted": comment.can_be_deleted_by(req),
+    } for comment in comments if comment.article.can_be_viewed_by(req)]
+    # context
+    context = {
+        "can_edit_profile": user_req == user_obj,
+        "user_obj": user_obj,
+    }
+
+    class Req:
+        user = user_obj.username
+    if has_perm_list(Req, ['add_article']) and len(articles):
+        context["articles"] = articles
+        context["can_edit_articles"] = articles[0]["can_be_edited"]
+        context["can_delete_articles"] = articles[0]["can_be_deleted"]
+    if has_perm_list(Req, ['add_comment']) and len(comments):
+        context["comments"] = comments
+        context["can_delete_comments"] = comments[0]["can_be_deleted"]
+
+    context = {**context, **navbar_init(req)}
+    return render(req, "profile.html", context)
 
 
 @login_required

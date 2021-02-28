@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css"/>
+{% endblock %}
+{% block page_content %}
+<main id="main-profile">
+    <div class="container" id="profile-header-container">
+        <div class="row">
+            <div class="col-xs-12 col-lg-2" id="profile-div-info">
+                <div class="col-12" style="height:25%;">
+                </div>
+                <div class="col-12">
+                    <p>{{ user_obj.first_name }} {{ user_obj.last_name }} ({{ user_obj.username }})</p>
+                    {% if user_obj.profile.email_visible %}
+                    <p>{{ user_obj.email }}</p>
+                    {% endif %}
+                    <p>Nombre d'articles : {{ user_obj.profile.nb_articles }}</p>
+                    <p>Nombre de commentaires : {{ user_obj.profile.nb_comments }}</p>
+                </div>
+            </div>
+            <div class="col-xs-12 col-lg-10" id="profile-div-tabs">
+                <ul class="nav nav-tabs" id="profile-tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="profile-view-tab" data-bs-toggle="tab" data-bs-target="#profile-view" type="button" role="tab" aria-controls="profile-view" aria-selected="true">Profil</button>
+                    </li>
+                    {% if can_edit_profile %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link disabled" id="profile-edit-tab" data-bs-toggle="tab" data-bs-target="#profile-edit" type="button" role="tab" aria-controls="profile-edit" aria-selected="false">Éditer mon profil</button>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="tab-content" id="profile-content">
+                    <div class="tab-pane fade show active" id="profile-view" role="tabpanel" aria-labelledby="profile-view-tab">
+                        <div class="container-fluid" id="profile-view-container">
+                            <div class="row">
+                                <h2>{{ user_obj.first_name }} {{ user_obj.last_name }}</h2>
+                                <hr>
+                                <h3>Description :</h3>
+                                {% if user_obj.profile.description %}
+                                <p>{{ user_obj.profile.description }}</p>
+                                {% else %}
+                                <p class="text-muted">Aucune description.</p>
+                                {% endif %}
+                                {% if user_obj.profile.email_visible %}
+                                <p>{{ user_obj.email }}</p>
+                                {% endif %}
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <ul class="nav nav-tabs" id="profile-view-tabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="profile-view-articles-tab" data-bs-toggle="tab" data-bs-target="#profile-view-articles" type="button" role="tab" aria-controls="profile-view-articles" aria-selected="false">
+                                            {% if can_edit_profile %}
+                                            Mes articles
+                                            {% else %}
+                                            Articles de {{ user_obj.username }}
+                                            {% endif %}
+                                            </button>
+                                        </li>
+                                        {% if comments %}
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="profile-view-comments-tab" data-bs-toggle="tab" data-bs-target="#profile-view-comments" type="button" role="tab" aria-controls="profile-view-comments" aria-selected="false">
+                                            {% if can_edit_profile %}
+                                            Mes commentaires
+                                            {% else %}
+                                            Commentaires de {{ user_obj.username }}
+                                            {% endif %}
+                                            </button>
+                                        </li>
+                                        {% endif %}
+                                    </ul>
+                                    <div class="tab-content" id="profile-view-content">
+                                        <div class="tab-pane fade show active" id="profile-view-articles" role="tabpanel" aria-labelledby="profile-view-articles-tab">
+                                            {% if articles %}
+                                            <table id="p-articles-list" class="table table-striped" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Titre</th>
+                                                        <th>Description</th>
+                                                        <th>Date d'ajout</th>
+                                                        <th>Date d'édition</th>
+                                                        <th>Catégorie(s)</th>
+                                                        {% if can_edit_articles %}
+                                                        <th>Editer</th>
+                                                        {% endif %}
+                                                        {% if can_delete_articles %}
+                                                        <th>Supp.</th>
+                                                        {% endif %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for article in articles %}
+                                                    <tr class="p-article-detail">
+                                                        <th id="p-title"><a href="{{ article.article.get_abolute_url }}">{{ article.article.title }}</a></th>
+                                                        <th id="p-description">{{ article.article.description }}</th>
+                                                        <th id="p-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
+                                                        <th id="p-edited">{{ article.article.edited|date:"Y/m/d H:i:s" }}</th>
+                                                        <th id="p-categories">{{ article.categories }}</th>
+                                                        {% if can_edit_articles %}
+                                                        {% if article.can_be_edited %}
+                                                        <th id="p-edit-button">
+                                                            <a href="{{ article.article.get_edit_url }}">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </a>
+                                                        </th>
+                                                        {% else %}
+                                                        <th id="p-edit-button">Non</th>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                        {% if can_delete_articles %}
+                                                        {% if article.can_be_deleted %}
+                                                        <th id="p-delete-button">
+                                                            <a href="{{ article.article.get_delete_url }}">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                        </th>
+                                                        {% else %}
+                                                        <th id="p-delete-button">Non</th>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            {% else %}
+                                            <h2 class="text-center">Aucun article.</h2>
+                                            {% endif %}
+                                        </div>
+                                        {% if comments %}
+                                        <div class="tab-pane fade show" id="profile-view-comments" role="tabpanel" aria-labelledby="profile-view-comments-view-tab">
+                                            <table id="p-comments-list" class="table table-striped" style="width:100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Article</th>
+                                                        <th>Auteur</th>
+                                                        <th>Date d'ajout</th>
+                                                        <th>Commentaire</th>
+                                                        {% if can_delete_comments %}
+                                                        <th>Supp.</th>
+                                                        {% endif %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for comment in comments %}
+                                                    <tr class="p-comment-detail">
+                                                        <th id="p-article"><a href="{{ comment.comment.article.get_absolute_url }}">{{ comment.comment.article.title }}</a></th>
+                                                        <th id="p-writer">{{ comment.comment.writer }}</th>
+                                                        <th id="p-created">{{ comment.comment.created|date:"Y/m/d H:i:s" }}</th>
+                                                        <th id="p-content">{{ comment.comment.content }}</th>
+                                                        {% if comment.can_be_deleted and can_delete_comments %}
+                                                        <th id="p-delete-button">
+                                                            <a href="{{ comment.comment.get_delete_url }}">
+                                                                <i class="bi bi-trash"></i>
+                                                            </a>
+                                                        </th>
+                                                        {% endif %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if can_edit_profile %}
+                    <div class="tab-pane fade show" id="profile-edit" role="tabpanel" aria-labelledby="profile-edit-tab">
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $("table[id^=p-][id$=-list]").each(function() {
+        console.log($(this))
+        $(this).DataTable({
+		    "language": {
+		    	"url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/French.json",
+			    "autoWidth": false
+		    }
+	    });
+    })
+} );
+</script>
+{% endblock %}

@@ -54,6 +54,7 @@
     	{% if user.is_authenticated %}
     	<a class="btn btn-primary btn-purple" href="/add_article">Ajouter un article</a>
 		{% if dashboard_access %}
+		<a class="nav-link" href="/user/{{ username }}/"><i class="bi bi-person"></i></a>
 		<a class="nav-link" href="/dashboard"><i class="bi bi-sliders"></i></a>
 		{% endif %}
     	<a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i></a>

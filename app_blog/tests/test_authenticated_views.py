@@ -246,3 +246,23 @@ def test_dashboard(
     assert response.status_code == expected["code"]
     if expected["url"]:
         assert response.url == expected['url']
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, password, expected",
+    [
+        ("test_admi", "password_admi", {"code": 200, "can_edit": True},),
+        ("test_aute", "password_aute", {"code": 200, "can_edit": False},),
+        ("test_abon", "password_abon", {"code": 200, "can_edit": False},),
+    ]
+)
+def test_show_profile(
+        client, make_test_users,
+        username, password, expected):
+    """Tests status_code for /user/test_admi/"""
+    client.login(username=username, password=password)
+    response = client.get("/user/test_admi/")
+    assert response.status_code == expected["code"]
+    if expected["can_edit"]:
+        assert "Éditer mon profil" in response.content.decode()
