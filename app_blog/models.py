@@ -203,3 +203,6 @@ class Profile(models.Model):
         self.nb_articles = len(articles)
         self.nb_comments = len(comments)
         self.save()
+
+    def get_absolute_url(self):
+        return reverse("profile", args=(self.user.username,))

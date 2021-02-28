@@ -141,3 +141,10 @@ def test_profile_update_meters(make_test_articles, make_test_comment):
     user_admi.profile.update_meters()
     assert nb_articles < user_admi.profile.nb_articles
     assert nb_comments < user_aute.profile.nb_comments
+
+
+@pytest.mark.django_db
+def test_profile_get_absolute_url(make_test_users):
+    """Test Profile.get_absolute_url()"""
+    user = User.objects.get(username="test_admi")
+    assert user.profile.get_absolute_url() == "/user/test_admi/"

@@ -41,8 +41,22 @@ def navbar_init(req):
                 context["navbar_cat_list"].append(cat)
             else:
                 context["navbar_sub_cat_list"].append(cat.name)
-    if req.user:
-        context['username'] = req.user
+    if req.user.is_authenticated:
+        try:
+            user = User.objects.get(username=req.user)
+            context['profile_link'] = user.profile.get_absolute_url()
+        except User.DoesNotExist:
+            messages.error(
+                req, f"Utilisateur inconnu : {req.user}"
+            )
+        except Profile.DoesNotExist:
+            profile = Profile(user=user)
+            profile.save()
+            messages.success(
+                req, f"Profil créé pour l'utilisateur {user.username}"
+            )
+            user.refresh_from_db(fields=["profile"])
+            context['profile_link'] = user.profile.get_absolute_url()
     return context
 
 
