@@ -94,7 +94,7 @@
                                                         <th id="p-title"><a href="{{ article.article.get_abolute_url }}">{{ article.article.title }}</a></th>
                                                         <th id="p-description">{{ article.article.description }}</th>
                                                         <th id="p-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
-                                                        <th id="p-edited">{{ article.article.edited|date:"Y/m/d H:i:s" }}</th>
+                                                        <th id="p-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
                                                         <th id="p-categories">{{ article.categories }}</th>
                                                         {% if can_edit_articles %}
                                                         {% if article.can_be_edited %}
