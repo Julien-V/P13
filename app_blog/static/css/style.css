@@ -21,9 +21,12 @@ html {
 }
 
 /* messages */
+#messages-container {
+  margin-top: 7%;
+}
+
 .alert {
   z-index: 1040;
-  margin-top: 7%;
   margin-left: 2%;
   margin-right: 2%;
   box-shadow: 1px 1px 1px 1px rgba(0,0,0,0.24);
