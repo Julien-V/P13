@@ -10,6 +10,16 @@
                 <div class="col-12" style="height:25%;">
                 </div>
                 <div class="col-12">
+                    <div id="badges-groups">
+                        {% if can_change_groups %}
+                        <a class="badge bg-purple d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user_obj.username }}" data-bs-target="#changeGroupsModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        {% endif %}
+                        {% for group in user_obj.groups.all %}
+                        <span class="badge bg-primary group-name">{{ group.name }}</span>
+                        {% endfor %}
+                    </div>
                     <p>{{ user_obj.first_name }} {{ user_obj.last_name }} ({{ user_obj.username }})</p>
                     {% if user_obj.profile.email_visible %}
                     <p>{{ user_obj.email }}</p>
@@ -175,6 +185,9 @@
         </div>
     </div>
 </main>
+{% if can_change_groups %}
+{% include "change_user_groups.html" %}
+{% endif %}
 {% endblock %}
 {% block custom_js %}
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -192,4 +205,5 @@ $(document).ready(function() {
     })
 } );
 </script>
+<script type="text/javascript" src="/static/js/app_blog_change_groups.js"></script>
 {% endblock %}

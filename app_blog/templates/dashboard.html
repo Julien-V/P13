@@ -32,12 +32,21 @@
             </thead>
             <tbody>
                 {% for user in users %}
-                <tr class="d-user-detail">
+                <tr class="d-user-detail" id="user-detail-{{ user.user.id }}">
                     <th id="d-username"><a href="{{ user.user.profile.get_absolute_url }}">{{ user.user.username }}</a></th>
                     <th id="d-email">{{ user.user.email }}</th>
                     <th id="d-last_name">{{ user.user.last_name }}</th>
                     <th id="d-first_name">{{ user.user.first_name }}</th>
-                    <th id="d-group">{{ user.groups }}</th>
+                    <th id="d-groups">
+                        {% if can_change_groups %}
+                        <a class="badge bg-purple d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user.user.username }}" data-bs-target="#changeGroupsModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        {% endif %}
+                        {% for group in user.user.groups.all %}
+                        <span class="badge bg-primary group-name">{{ group.name }}</span>
+                        {% endfor %}
+                    </th>
                     <th id="d-last_login">{{ user.user.last_login }}</th>
                 </tr>
                 {% endfor %}
@@ -127,6 +136,9 @@
     {% endif %}
 </div>
 </main>
+{% if can_change_groups %}
+{% include "change_user_groups.html" %}
+{% endif %}
 {% endblock %}
 {% block custom_js %}
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -145,4 +157,5 @@ $(document).ready(function() {
     })
 } );
 </script>
+<script type="text/javascript" src="/static/js/app_blog_change_groups.js"></script>
 {% endblock %}

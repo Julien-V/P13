@@ -12,6 +12,7 @@ urlpatterns = [
     path('add_comment', views.add_comment, name="add_comment"),
     path('article/<slug:slug>/', views.show_article, name="article"),
     path('category/<slug:slug>/', views.list_by_category, name="category"),
+    path('change_groups', views.change_groups, name="change_groups"),
     path('edit/article/<slug:slug>/', views.edit_article, name="edit_article"),
     path('delete/article/<slug:slug>/', views.del_article, name="del_article"),
     path('del_comment', views.del_comment, name="del_comment"),

@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, HttpResponse
 
 from django.shortcuts import render, redirect, reverse
 
@@ -371,7 +371,7 @@ def del_comment(req):
 def dashboard(req):
     users = [{
         "user": user,
-        "groups": "".join(f"{group.name};" for group in user.groups.all())
+        "groups": "".join(f"{group.name};" for group in user.groups.all()),
     } for user in User.objects.all()]
     articles = [{
         "article": article,
@@ -387,6 +387,8 @@ def dashboard(req):
     } for comment in Comment.objects.all()]
     context = {
         "users": users,
+        "can_change_groups": has_perm_list(req, ["change_group"]),
+        "groups": Group.objects.all(),
         "articles": articles,
         "comments": comments
     }
@@ -434,6 +436,8 @@ def show_profile(req, username):
     context = {
         "can_edit_profile": user_req == user_obj,
         "user_obj": user_obj,
+        "can_change_groups": has_perm_list(req, ["change_group"]),
+        "groups": Group.objects.all(),
     }
 
     class Req:
@@ -448,6 +452,41 @@ def show_profile(req, username):
 
     context = {**context, **navbar_init(req)}
     return render(req, "profile.html", context)
+
+
+@login_required
+@perm_required(['change_group'])
+def change_groups(req):
+    if req.method == "POST":
+        try:
+            username = req.POST["username"]
+            user = User.objects.get(username=username)
+        except KeyError as e:
+            messages.error(
+                req,
+                "Impossible de changer le groupe sans le nom d'utilisateur."
+            )
+            messages.error(req, str(e))
+            return redirect(reverse('dashboard'))
+        except User.DoesNotExist:
+            messages.error(
+                req,
+                f"Impossible de trouver l'utilisateur : {username}"
+            )
+            return redirect(reverse('dashboard'))
+        group_name_list = [group.name for group in Group.objects.all()]
+        post_keys = req.POST.keys()
+        group_list = [key for key in post_keys if key in group_name_list]
+        group_obj_list = list()
+        for name in group_list:
+            group_obj = Group.objects.get(name=name)
+            group_obj_list.append(group_obj)
+        group_obj_list = sorted(group_obj_list, key=lambda i: i.name)
+        user.groups.clear()
+        user.groups.add(*group_obj_list)
+        response = "".join(f"{group.name};" for group in group_obj_list)
+        response = str(user.id) + "/" + response
+        return HttpResponse(response)
 
 
 @login_required

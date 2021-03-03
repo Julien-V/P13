@@ -4,6 +4,8 @@
 import re
 import pytest
 
+from django.contrib.auth.models import User
+
 from django.shortcuts import reverse
 
 from app_blog.models import Article, Comment
@@ -266,3 +268,39 @@ def test_show_profile(
     assert response.status_code == expected["code"]
     if expected["can_edit"]:
         assert "Éditer mon profil" in response.content.decode()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, groups, expected",
+    [
+        ('test_aute', ["Contributeur", "Abonné"], {"code": 200, "url": None},),
+        ('', ["Admin"], {"code": 302, "url": reverse('dashboard')},),
+        ('test_null', ["Admin"], {"code": 302, "url": reverse('dashboard')},),
+        ('test_aute', ["null"], {"code": 200, "url": None},),
+    ]
+)
+def test_change_groups(
+        client, make_test_users,
+        username, groups, expected):
+    """Tests /change_groups"""
+    client.login(username="test_admi", password="password_admi")
+    response = client.get('/user/test_aute/')
+    # get csrf_token from cookie
+    csrf_token = client.cookies['csrftoken'].value
+    fields = dict()
+    fields['csrfmiddlewaretoken'] = csrf_token
+    if len(username):
+        fields['username'] = username
+    for group in groups:
+        fields[group] = "on"
+    response = client.post(reverse('change_groups'), fields)
+    assert response.status_code == expected['code']
+    if expected['url']:
+        assert response.url == expected['url']
+    if response.status_code == 200:
+        user = User.objects.get(username=username)
+        groups = sorted(user.groups.all(), key=lambda i: i.name)
+        groups_str = ''.join(f"{group.name};" for group in groups)
+        expected_response = f"{user.id}/{groups_str}"
+        assert response.content.decode() == expected_response

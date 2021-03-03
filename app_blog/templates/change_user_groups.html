@@ -1,0 +1,25 @@
+<div class="modal fade" id="changeGroupsModal" tabindex="-1" aria-labelledby="changeGroupsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="changeGroupsModalLabel">Changement de groupe</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <form action="/change_groups" method="POST" id="form-change-groups">
+            {% csrf_token %}
+            {% for group in groups %}
+            <div class="form-check form-check-inline">
+                <input type="checkbox" class="btn-check" id="btn-check-group-{{ group.id }}" name="{{ group.name }}" autocomplete="off">
+                <label class="btn btn-outline-purple" for="btn-check-group-{{ group.id }}">{{ group.name }}</label>
+            </div>
+            {% endfor %}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-purple" type="submit" form="form-change-groups" id="modal-change-groups-submit">Sauvegarder</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="changeGroupsModalClose">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
