@@ -11,6 +11,7 @@ urlpatterns = [
     path('add_article', views.add_article, name="add_article"),
     path('add_comment', views.add_comment, name="add_comment"),
     path('article/<slug:slug>/', views.show_article, name="article"),
+    path('block', views.block, name="block"),
     path('category/<slug:slug>/', views.list_by_category, name="category"),
     path('change_groups', views.change_groups, name="change_groups"),
     path('edit/article/<slug:slug>/', views.edit_article, name="edit_article"),

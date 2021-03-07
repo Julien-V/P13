@@ -393,17 +393,24 @@ header.masthead > div.container-fluid {
   margin-left: 2px;
 }
 
-.d-edit-groups-link {
+.cstm-badge-outline {
+  text-decoration: none;
   font-size: initial;
   color:#FFFFFF;
+  border-width: thin;
+  border-style: solid;
 }
 
-.d-edit-groups-link:hover {
+.cstm-badge-outline:hover {
   color: var(--color-purple);
   background-color: #FFFFFF !important;
   border-color: var(--color-purple);
   border-style: solid;
   border-width: thin;
+}
+
+.block-user-link > i {
+  font-style: normal;
 }
 
 /* /user/<str:username>/ */

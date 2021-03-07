@@ -42,7 +42,7 @@ function refreshGroups(data) {
     })
 }
 
-window.onload = function () {
+window.addEventListener('load', function () {
     $(".d-edit-groups-link").click(function () {
         let groups = getGroups($(this), ".group-name");
         groups_checked(groups, true);
@@ -63,4 +63,4 @@ window.onload = function () {
                 // alert-success ?
             });
     });
-}
+});

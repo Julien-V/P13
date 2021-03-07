@@ -10,9 +10,18 @@
                 <div class="col-12" style="height:25%;">
                 </div>
                 <div class="col-12">
+                    <div id="badge-is_active">
+                        <a class="badge bg-purple cstm-badge-outline block-user-link" href="{% if can_block %}/block?username={{ user_obj.username }}{% else %}#{% endif %}">
+                            {% if user_obj.is_active %}
+                            <i class="bi bi-unlock-fill">Actif</i>
+                            {% else %}
+                            <i class="bi bi-lock-fill">Inactif</i>
+                            {% endif %}
+                        </a>
+                    </div>
                     <div id="badges-groups">
                         {% if can_change_groups %}
-                        <a class="badge bg-purple d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user_obj.username }}" data-bs-target="#changeGroupsModal">
+                        <a class="badge bg-purple cstm-badge-outline d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user_obj.username }}" data-bs-target="#changeGroupsModal">
                             <i class="bi bi-pencil-square"></i>
                         </a>
                         {% endif %}
@@ -20,10 +29,12 @@
                         <span class="badge bg-primary group-name">{{ group.name }}</span>
                         {% endfor %}
                     </div>
+                    <hr>
                     <p>{{ user_obj.first_name }} {{ user_obj.last_name }} ({{ user_obj.username }})</p>
                     {% if user_obj.profile.email_visible %}
                     <p>{{ user_obj.email }}</p>
                     {% endif %}
+                    <hr>
                     <p>Nombre d'articles : {{ user_obj.profile.nb_articles }}</p>
                     <p>Nombre de commentaires : {{ user_obj.profile.nb_comments }}</p>
                 </div>
@@ -101,7 +112,7 @@
                                                 <tbody>
                                                     {% for article in articles %}
                                                     <tr class="p-article-detail">
-                                                        <th id="p-title"><a href="{{ article.article.get_abolute_url }}">{{ article.article.title }}</a></th>
+                                                        <th id="p-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
                                                         <th id="p-description">{{ article.article.description }}</th>
                                                         <th id="p-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
                                                         <th id="p-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
@@ -205,5 +216,10 @@ $(document).ready(function() {
     })
 } );
 </script>
+{% if can_change_groups %}
 <script type="text/javascript" src="/static/js/app_blog_change_groups.js"></script>
+{% endif %}
+{% if can_block %}
+<script type="text/javascript" src="/static/js/app_blog_block_user.js"></script>
+{% endif %}
 {% endblock %}

@@ -28,18 +28,22 @@
                     <th>Prénom</th>
                     <th>Groupe</th>
                     <th>Dernière connexion</th>
+                    <th>Date d'inscription</th>
+                    {% if can_block %}
+                    <th>Actif</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                 <tr class="d-user-detail" id="user-detail-{{ user.user.id }}">
-                    <th id="d-username"><a href="{{ user.user.profile.get_absolute_url }}">{{ user.user.username }}</a></th>
+                    <th class="user-username" id="d-username"><a href="{{ user.user.profile.get_absolute_url }}">{{ user.user.username }}</a></th>
                     <th id="d-email">{{ user.user.email }}</th>
                     <th id="d-last_name">{{ user.user.last_name }}</th>
                     <th id="d-first_name">{{ user.user.first_name }}</th>
                     <th id="d-groups">
                         {% if can_change_groups %}
-                        <a class="badge bg-purple d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user.user.username }}" data-bs-target="#changeGroupsModal">
+                        <a class="badge bg-purple cstm-badge-outline d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user.user.username }}" data-bs-target="#changeGroupsModal">
                             <i class="bi bi-pencil-square"></i>
                         </a>
                         {% endif %}
@@ -47,7 +51,19 @@
                         <span class="badge bg-primary group-name">{{ group.name }}</span>
                         {% endfor %}
                     </th>
-                    <th id="d-last_login">{{ user.user.last_login }}</th>
+                    <th id="d-last_login">{{ user.user.last_login|date:"Y/m/d H:i:s" }}</th>
+                    <th id="d-date_joined">{{ user.user.date_joined|date:"Y/m/d H:i:s" }}</th>
+                    {% if can_block %}
+                    <th id="d-is-active">
+                        <a class="badge bg-purple cstm-badge-outline block-user-link" href="/block?username={{ user.user.username }}">
+                        {% if user.user.is_active %}
+                        <i class="bi bi-unlock-fill">Actif</i>
+                        {% else %}
+                        <i class="bi bi-lock-fill">Inactif</i>
+                        {% endif %}
+                        </a>
+                    </th>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
@@ -71,7 +87,7 @@
             <tbody>
                 {% for article in articles %}
                 <tr class="d-article-detail">
-                    <th id="d-title"><a href="{{ article.article.get_abolute_url }}">{{ article.article.title }}</a></th>
+                    <th id="d-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
                     <th id="d-created">{{ article.article.created }}</th>
                     <th id="d-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
                     <th id="d-writer">{{ article.article.writer }}</th>
@@ -157,5 +173,10 @@ $(document).ready(function() {
     })
 } );
 </script>
+{% if can_change_groups %}
 <script type="text/javascript" src="/static/js/app_blog_change_groups.js"></script>
+{% endif %}
+{% if can_block %}
+<script type="text/javascript" src="/static/js/app_blog_block_user.js"></script>
+{% endif %}
 {% endblock %}

@@ -27,4 +27,4 @@ function auto_close_bs_alert() {
   setTimeout(close_bs_alert, 3000);
 }
 
-window.onload = auto_close_bs_alert;
+window.addEventListener('load', auto_close_bs_alert);

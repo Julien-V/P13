@@ -15,7 +15,9 @@ from app_blog.models import Profile
     "url, expected_status_code",
     [
         (reverse("home"), 200,),
-        (reverse("about_us"), 200)
+        (reverse("about_us"), 200),
+        (reverse("login"), 200),
+        (reverse("sign_up"), 200)
     ]
 )
 def test_public_url(client, url, expected_status_code):

@@ -304,3 +304,25 @@ def test_change_groups(
         groups_str = ''.join(f"{group.name};" for group in groups)
         expected_response = f"{user.id}/{groups_str}"
         assert response.content.decode() == expected_response
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_cont", {"code": 200}),
+        ("test_fake", {"code": 404}),
+    ]
+)
+def test_block_users(client, make_test_users, username, expected):
+    """Tests /block"""
+    client.login(username="test_admi", password="password_admi")
+    response = client.get(reverse('block'), {"username": username})
+    assert response.status_code == expected["code"]
+    if response.status_code == 200:
+        try:
+            user_obj = User.objects.get(username=username)
+        except User.DoesNotExist:
+            pytest.fail("User.DoesNotExist")
+        assert user_obj.is_active is False
+        assert response.content.decode() == f"{username}/{user_obj.is_active}"

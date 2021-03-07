@@ -6,7 +6,7 @@
     	<img class="mb-4" src="/static/assets/logo.svg" alt="" width="172" height="157">
     	<h1 class="h3 mb-3 fw-normal">Connexion</h1>
     	{% if error %}
-		<p><strong>Utilisateur inconnu ou mauvais de mot de passe.</strong></p>
+		<p><strong>{{ error }}</strong></p>
 		{% endif %}
     	<label for="username_email" class="visually-hidden">Adresse email</label>
     	<input type="text" name="username_email" id="username_email" class="form-control" placeholder="Adresse Email" required="" autofocus="">

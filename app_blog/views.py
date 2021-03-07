@@ -86,7 +86,15 @@ def log_in(req):
                 messages.success(req, f"Bonjour {user.username} !")
                 return redirect_next(req)
             else:
-                error = True
+                try:
+                    user_obj = User.objects.get(username=username)
+                    if not user_obj.is_active:
+                        error = "Compte utilisateur désactivé."
+                except User.DoesNotExist:
+                    error = "Utilisateur inconnu ou mauvais de mot de passe."
+                messages.error(
+                    req, error
+                )
     else:
         form = ConnectionForm()
     context = {
@@ -389,6 +397,7 @@ def dashboard(req):
         "users": users,
         "can_change_groups": has_perm_list(req, ["change_group"]),
         "groups": Group.objects.all(),
+        "can_block": has_perm_list(req, ["block_users"]),
         "articles": articles,
         "comments": comments
     }
@@ -437,6 +446,7 @@ def show_profile(req, username):
         "can_edit_profile": user_req == user_obj,
         "user_obj": user_obj,
         "can_change_groups": has_perm_list(req, ["change_group"]),
+        "can_block": has_perm_list(req, ["block_users"]),
         "groups": Group.objects.all(),
     }
 
@@ -487,6 +497,25 @@ def change_groups(req):
         response = "".join(f"{group.name};" for group in group_obj_list)
         response = str(user.id) + "/" + response
         return HttpResponse(response)
+
+
+@login_required
+@perm_required(['delete_user'])
+def block(req):
+    if req.method == "GET":
+        if "username" in req.GET.keys():
+            username = req.GET["username"]
+            try:
+                user_obj = User.objects.get(username=username)
+            except User.DoesNotExist:
+                messages.error(
+                    req, f"Impossible de trouver l'utilisateur {username}")
+                return HttpResponseNotFound()
+            # False : True is False
+            # True : False is False
+            user_obj.is_active = user_obj.is_active is False
+            user_obj.save()
+            return HttpResponse(f"{username}/{user_obj.is_active}")
 
 
 @login_required
