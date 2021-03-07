@@ -97,7 +97,6 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Titre</th>
-                                                        <th>Description</th>
                                                         <th>Date d'ajout</th>
                                                         <th>Date d'édition</th>
                                                         <th>Catégorie(s)</th>
@@ -113,7 +112,6 @@
                                                     {% for article in articles %}
                                                     <tr class="p-article-detail">
                                                         <th id="p-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
-                                                        <th id="p-description">{{ article.article.description }}</th>
                                                         <th id="p-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
                                                         <th id="p-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
                                                         <th id="p-categories">{{ article.categories }}</th>
@@ -153,7 +151,6 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Article</th>
-                                                        <th>Auteur</th>
                                                         <th>Date d'ajout</th>
                                                         <th>Commentaire</th>
                                                         {% if can_delete_comments %}
@@ -165,7 +162,6 @@
                                                     {% for comment in comments %}
                                                     <tr class="p-comment-detail">
                                                         <th id="p-article"><a href="{{ comment.comment.article.get_absolute_url }}">{{ comment.comment.article.title }}</a></th>
-                                                        <th id="p-writer">{{ comment.comment.writer }}</th>
                                                         <th id="p-created">{{ comment.comment.created|date:"Y/m/d H:i:s" }}</th>
                                                         <th id="p-content">{{ comment.comment.content }}</th>
                                                         {% if comment.can_be_deleted and can_delete_comments %}

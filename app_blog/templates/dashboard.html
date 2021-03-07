@@ -88,9 +88,9 @@
                 {% for article in articles %}
                 <tr class="d-article-detail">
                     <th id="d-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
-                    <th id="d-created">{{ article.article.created }}</th>
+                    <th id="d-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
                     <th id="d-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
-                    <th id="d-writer">{{ article.article.writer }}</th>
+                    <th id="d-writer"><a href="{{ article.article.writer.profile.get_absolute_url }}">{{ article.article.writer }}</a></th>
                     <th id="d-categories">{{ article.categories }}</th>
                     {% if article.can_be_edited %}
                     <th id="d-edit-button">
@@ -132,8 +132,8 @@
                 {% for comment in comments %}
                 <tr class="d-comment-detail">
                     <th id="d-article"><a href="{{ comment.comment.article.get_absolute_url }}">{{ comment.comment.article.title }}</a></th>
-                    <th id="d-writer">{{ comment.comment.writer }}</th>
-                    <th id="d-created">{{ comment.comment.created }}</th>
+                    <th id="d-writer"><a href="{{ comment.comment.writer.profile.get_absolute_url }}">{{ comment.comment.writer }}</a></th>
+                    <th id="d-created">{{ comment.comment.created|date:"Y/m/d H:i:s" }}</th>
                     <th id="d-content">{{ comment.comment.content }}</th>
                     {% if comment.can_be_deleted %}
                     <th id="d-delete-button">
