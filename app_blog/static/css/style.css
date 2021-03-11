@@ -416,6 +416,10 @@ header.masthead > div.container-fluid {
   font-style: normal;
 }
 
+.badge-cat-name {
+  margin-left: 2px;
+}
+
 /* /user/<str:username>/ */
 #main-profile {
   padding-top: 3%;

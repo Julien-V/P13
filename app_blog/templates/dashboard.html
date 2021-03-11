@@ -91,7 +91,11 @@
                     <th id="d-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
                     <th id="d-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
                     <th id="d-writer"><a href="{{ article.article.writer.profile.get_absolute_url }}">{{ article.article.writer }}</a></th>
-                    <th id="d-categories">{{ article.categories }}</th>
+                    <th id="d-categories">
+                        {% for cat in article.article.category_set.all %}
+                        <span class="badge bg-primary badge-cat-name">{{ cat.name }}</span>
+                        {% endfor %}
+                    </th>
                     {% if article.can_be_edited %}
                     <th id="d-edit-button">
                         <a href="{{ article.article.get_edit_url }}">

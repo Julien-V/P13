@@ -114,7 +114,11 @@
                                                         <th id="p-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
                                                         <th id="p-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
                                                         <th id="p-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
-                                                        <th id="p-categories">{{ article.categories }}</th>
+                                                        <th id="p-categories">
+                                                            {% for cat in article.article.category_set.all %}
+                                                            <span class="badge bg-primary badge-cat-name">{{ cat.name }}</span>
+                                                            {% endfor %}
+                                                        </th>
                                                         {% if can_edit_articles %}
                                                         {% if article.can_be_edited %}
                                                         <th id="p-edit-button">
