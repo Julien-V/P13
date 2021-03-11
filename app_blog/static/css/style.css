@@ -65,7 +65,6 @@ header.masthead > div.container-fluid {
   header.masthead, #main-profile {
     height: 100vh;
     min-height: 40rem;
-    padding-bottom: 0;
   }
   header.masthead p {
     font-size: 1.15rem;
@@ -218,21 +217,21 @@ header.masthead > div.container-fluid {
 
 /* /login */
 [id^=main-sign] {
-  padding-top: 10%;
+  padding-top: 6%;
   max-width: 330px;
   margin: auto;
 }
 
 /* /category/ */
 #cathead {
-  padding-top: 6%;
+  padding-top: 2%;
   margin-bottom: 1%
 }
 
 
 /* add_article */
 #main-add-article, #main-article, #main-about {
-  padding-top: 6%;
+  padding-top: 4%;
   margin: auto;
   background-color: var(--color-green);
 }
@@ -386,7 +385,7 @@ header.masthead > div.container-fluid {
 
 /* /dashboard/ */
 #main-dashboard {
-  padding-top: 5%;
+  padding-top: 2%;
 }
 
 #d-groups-p {
@@ -419,7 +418,7 @@ header.masthead > div.container-fluid {
 
 /* /user/<str:username>/ */
 #main-profile {
-  padding-top:5%;
+  padding-top: 3%;
 }
 
 .tab-pane {
