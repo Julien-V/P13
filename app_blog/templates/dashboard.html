@@ -90,7 +90,11 @@
                     <th id="d-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
                     <th id="d-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
                     <th id="d-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
+                    {% if article.article.is_anonymous %}
+                    <th id="d-writer">Anonyme {% if can_view_anonymous_article %}(<a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a>){% endif %}</th>
+                    {% else %}
                     <th id="d-writer"><a href="{{ article.article.writer.profile.get_absolute_url }}">{{ article.article.writer }}</a></th>
+                    {% endif %}
                     <th id="d-categories">
                         {% for cat in article.article.category_set.all %}
                         <span class="badge bg-primary badge-cat-name">{{ cat.name }}</span>

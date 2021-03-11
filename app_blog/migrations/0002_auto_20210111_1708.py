@@ -48,7 +48,8 @@ def make_groups(apps, schema_editor):
     admin = base_pp + conseillers + [
         "del_users_articles", "change_users_articles", "add_category",
         "edit_category", "change_category", "del_category",
-        "del_users_comment", "change_group", "delete_user"
+        "del_users_comment", "change_group", "delete_user",
+        "view_anonymous_article"
     ]
 
     groups = [

@@ -45,9 +45,9 @@
 					</h4>
 				</th>
 				{% if article.is_anonymous %}
-				<th id="writer">Anonyme</th>
+				<th id="writer">Anonyme {% if can_view_anonymous_article %} (<a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a>){% endif %}</th>
 				{% else %}
-				<th id="writer">{{ article.writer }}</th>
+				<th id="writer"><a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a></th>
 				{% endif %}
 				<th class="text-muted" id="created">({{ article.created }})</th>
 				<th id="description">{{ article.description }}</th>

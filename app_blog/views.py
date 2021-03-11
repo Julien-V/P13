@@ -174,6 +174,8 @@ def list_by_category(req, slug):
         "articles": articles,
         "category": cat
     }
+    if has_perm_list(req, ["view_anonymous_article"]):
+        context["can_view_anonymous_article"] = True
     context = {**context, **navbar_init(req)}
     return render(req, 'list_by_category.html', context)
 
@@ -245,6 +247,8 @@ def show_article(req, slug):
         "content": unescape(article.content),
         "comments": comments
     }
+    if has_perm_list(req, ["view_anonymous_article"]):
+        context["can_view_anonymous_article"] = True
     context = {**context, **navbar_init(req)}
     return render(req, "article.html", context)
 
@@ -401,6 +405,8 @@ def dashboard(req):
         "articles": articles,
         "comments": comments
     }
+    if has_perm_list(req, ["view_anonymous_article"]):
+        context["can_view_anonymous_article"] = True
     context = {**context, **navbar_init(req)}
     return render(req, "dashboard.html", context)
 
@@ -459,6 +465,8 @@ def show_profile(req, username):
     if has_perm_list(Req, ['add_comment']) and len(comments):
         context["comments"] = comments
         context["can_delete_comments"] = comments[0]["can_be_deleted"]
+    if has_perm_list(req, ["view_anonymous_article"]) or user_req == user_obj:
+        context["can_view_anonymous_article"] = True
 
     context = {**context, **navbar_init(req)}
     return render(req, "profile.html", context)

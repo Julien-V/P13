@@ -110,6 +110,7 @@
                                                 </thead>
                                                 <tbody>
                                                     {% for article in articles %}
+                                                    {% if article.is_anonymous is False or can_view_anonymous_article %}
                                                     <tr class="p-article-detail">
                                                         <th id="p-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
                                                         <th id="p-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
@@ -142,6 +143,7 @@
                                                         {% endif %}
                                                         {% endif %}
                                                     </tr>
+                                                    {% endif %}
                                                     {% endfor %}
                                                 </tbody>
                                             </table>

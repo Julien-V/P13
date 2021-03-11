@@ -10,9 +10,9 @@
 		{% endif %}
 		<h2>{{ article.title }}</h2>
 		{% if article.is_anonymous %}
-		<p>Ajouté le {{ article.created }} par Anonyme</p>
+		<p>Ajouté le {{ article.created }} par Anonyme {% if can_view_anonymous_article %}(<a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a>){% endif %}</p>
 		{% else %}
-		<p>Ajouté le {{ article.created }} par {{ article.writer }}</p>
+		<p>Ajouté le {{ article.created }} par <a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a></p>
 		{% endif %}
 		{% if article.edited %}
 		<p>Modifié le {{ article.edited }}</p>
