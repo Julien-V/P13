@@ -2,10 +2,6 @@ language: python
 python:
   - '3.9'
 
-branches:
-  only:
-    - staging
-
 before_script:
   - pip install -r requirements.txt
 
