@@ -3,7 +3,24 @@
 <header class="masthead" id="masthead">
 	<div class="container-fluid h-100">
 		<div class="row h-100 position-relative" id='header-row'>
-			<div class="col-6 container position-absolute" id="txt">
+			<div class="col-lg-12" id="gradient-line"></div>
+			<div id="space-between-gl-and-content"></div>
+			<div class="container" id="header-content">
+				<div class="row h-50 align-items-center">
+					<div class="col-lg-6 justify-content-center text-center" id="header-title">
+						<div>
+							<h1>SéezLangues</h1>
+							<h2>des ressources<br>à portée de mains !</h2>
+							<p>Un site participatif de partage <br>de ressources pédagogiques <br> par et pour les enseignants de langues vivantes.</p>
+							<p>SéézLangues, une force collective en action !</p>
+							{% if not user.is_authenticated %}
+							<button id="button-join-us" class="btn btn-primary btn-purple">Rejoignez-nous</button>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 container" id="txt">
 				<!-- Carousel wrapper -->
 				<div id="carousel-home" class="carousel slide h-100"
 				  data-bs-ride="carousel">
@@ -12,7 +29,7 @@
 				    	<li data-bs-target="#carousel-home" data-bs-slide-to="0" class="active"></li>
 				    	<li data-bs-target="#carousel-home" data-bs-slide-to="1"></li>
 				    	<li data-bs-target="#carousel-home" data-bs-slide-to="2"></li>
-				    	<li data-bs-target="#carousel-home" data-bs-slide-to="2"></li>
+				    	<li data-bs-target="#carousel-home" data-bs-slide-to="3"></li>
 				  	</ol>
 				  	<!-- Indicators end -->
 				  	<!-- Inner -->
@@ -54,7 +71,7 @@
 				        		class="d-block w-100"
 				        		alt="..."/>
 				      		<div class="carousel-caption d-none d-md-block" id="carousel-home-caption-4">
-				        		<h5>Partager des ressources et outils</h4>
+				        		<h4>Partager des ressources et outils</h4>
 				        		<p>SéezLangues vous propose des outils numériques avec tutoriels, une banque de ressources numériques et pédagogiques, des cours, des fiches exploitables, des astuces, des utilitaires exploitables au quotidien par tous: du clé en main !</p>
 				      		</div>
 				    	</div>
@@ -74,23 +91,6 @@
 				  	<!-- Controls end -->
 				</div>
 				<!-- Carousel wrapper end -->
-			</div>
-			<div class="col-lg-12" id="gradient-line"></div>
-			<div id="space-between-gl-and-content"></div>
-			<div class="container" id="header-content">
-				<div class="row h-50 align-items-center">
-					<div class="col-6 justify-content-center text-center" id="header-title">
-						<div>
-							<h1>SéezLangues</h1>
-							<h2>des ressources<br>à portée de mains !</h2>
-							<p>Un site participatif de partage <br>de ressources pédagogiques <br> par et pour les enseignants de langues vivantes.</p>
-							<p>SéézLangues, une force collective en action !</p>
-							{% if not user.is_authenticated %}
-							<button id="button-join-us" class="btn btn-primary btn-purple w-25">Rejoignez-nous</button>
-							{% endif %}
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>

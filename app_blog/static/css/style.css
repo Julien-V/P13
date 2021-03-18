@@ -50,6 +50,10 @@ header.masthead > div.container-fluid {
 	padding: 0%;
 }
 
+header.masthead div#header-content {
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
 
 @media (min-width: 576px) {
   #articles-list tr {
@@ -75,13 +79,18 @@ header.masthead > div.container-fluid {
   #articles-list tr {
     min-width: 790px;
   }
+  #txt {
+    position: absolute !important;
+    right: 7%;
+    margin-top: 5%;
+  }
 }
 @media (min-width: 1200px) {
   header.masthead h1 {
     font-size: 5rem;
   }
   header.masthead h2 {
-    font-size: 3.4rem;
+    font-size: 3.1rem;
   }
   #articles-list tr {
     min-width: 1000px;
@@ -92,10 +101,10 @@ header.masthead > div.container-fluid {
     min-width: 1200px;
   }
 }
+
 #txt {
   height: 80%;
-  margin-top: 5%;
-  right: 7%;
+  align-self: center;
 }
 
 #carousel-home {
