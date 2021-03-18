@@ -3,8 +3,11 @@
 
 import pytest
 
-from app_blog.models import Article, Category
+from app_blog.models import Article, Category, Comment
+
 from django.contrib.auth.models import User
+
+from django.shortcuts import reverse
 
 
 @pytest.mark.django_db
@@ -38,3 +41,110 @@ def test_slug(obj, fields, slug):
         pytest.fail(f"{obj} DoesNotExist")
     slug = slug(temp.id)
     assert temp.slug == slug
+
+
+@pytest.mark.django_db
+def test_article_get_edit_url(make_test_articles):
+    """Tests Article.get_edit_url()"""
+    articles = Article.objects.all()
+    if not len(articles):
+        pytest.fail("No articles")
+    else:
+        for article in articles:
+            edit_url = f"/edit/article/{article.slug}/"
+            assert article.get_edit_url() == edit_url
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_admi", True,),
+        ("test_unknown", False,),
+        ("test_cons", False,),
+    ]
+)
+def test_article_can_be_edited_by(make_test_articles, username, expected):
+    """Tests Article._can_be_edited_by(req)"""
+    class Req:
+        user = username
+    articles = Article.objects.all()
+    if not len(articles):
+        pytest.fail("No articles")
+    else:
+        article = articles[0]
+        assert article.can_be_edited_by(Req) == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_admi", True,),
+        ("test_unknown", False,),
+        ("test_cons", False,),
+    ]
+)
+def test_article_can_be_deleted_by(make_test_articles, username, expected):
+    """Tests Article._can_be_deleted_by(req)"""
+    class Req:
+        user = username
+    articles = Article.objects.all()
+    if not len(articles):
+        pytest.fail("No articles")
+    else:
+        article = articles[0]
+        assert article.can_be_deleted_by(Req) == expected
+
+
+@pytest.mark.django_db
+def test_comment_get_delete_url(make_test_comment):
+    """Tests Comment.get_delete_url()"""
+    comments = Comment.objects.all()
+    if not len(comments):
+        pytest.fail("No comments")
+    else:
+        for comment in comments:
+            del_url = f"{reverse('del_comment')}?id={comment.id}"
+            assert comment.get_delete_url() == del_url
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "username, expected",
+    [
+        ("test_admi", True,),
+        ("test_unknown", False,),
+        ("test_aute", True,),
+    ]
+)
+def test_comment_can_be_deleted_by(make_test_comment, username, expected):
+    """Tests Comment.can_be_deleted_by(req)"""
+    class Req:
+        user = username
+    comments = Comment.objects.all()
+    if not len(comments):
+        pytest.fail("No comments")
+    else:
+        comment = comments[0]
+        assert comment.can_be_deleted_by(Req) == expected
+
+
+@pytest.mark.django_db
+def test_profile_update_meters(make_test_articles, make_test_comment):
+    """Tests Profile.update_meters()"""
+    user_admi = User.objects.get(username="test_admi")
+    user_aute = User.objects.get(username="test_aute")
+    nb_comments = user_aute.profile.nb_comments
+    nb_articles = user_admi.profile.nb_articles
+    user_aute.profile.update_meters()
+    user_admi.profile.update_meters()
+    assert nb_articles < user_admi.profile.nb_articles
+    assert nb_comments < user_aute.profile.nb_comments
+
+
+@pytest.mark.django_db
+def test_profile_get_absolute_url(make_test_users):
+    """Test Profile.get_absolute_url()"""
+    user = User.objects.get(username="test_admi")
+    assert user.profile.get_absolute_url() == "/user/test_admi/"

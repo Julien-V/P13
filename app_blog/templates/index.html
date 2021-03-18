@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block page_content %}
+<header class="masthead" id="masthead">
+	<div class="container-fluid h-100">
+		<div class="row h-100 position-relative" id='header-row'>
+			<div class="col-lg-12" id="gradient-line"></div>
+			<div id="space-between-gl-and-content"></div>
+			<div class="container" id="header-content">
+				<div class="row h-50 align-items-center">
+					<div class="col-lg-6 justify-content-center text-center" id="header-title">
+						<div>
+							<h1>SéezLangues</h1>
+							<h2>des ressources<br>à portée de mains !</h2>
+							<p>Un site participatif de partage <br>de ressources pédagogiques <br> par et pour les enseignants de langues vivantes.</p>
+							<p>SéézLangues, une force collective en action !</p>
+							{% if not user.is_authenticated %}
+							<button id="button-join-us" class="btn btn-primary btn-purple">Rejoignez-nous</button>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-6 container" id="txt">
+				<!-- Carousel wrapper -->
+				<div id="carousel-home" class="carousel slide h-100"
+				  data-bs-ride="carousel">
+				  	<!-- Indicators -->
+					<ol class="carousel-indicators">
+				    	<li data-bs-target="#carousel-home" data-bs-slide-to="0" class="active"></li>
+				    	<li data-bs-target="#carousel-home" data-bs-slide-to="1"></li>
+				    	<li data-bs-target="#carousel-home" data-bs-slide-to="2"></li>
+				    	<li data-bs-target="#carousel-home" data-bs-slide-to="3"></li>
+				  	</ol>
+				  	<!-- Indicators end -->
+				  	<!-- Inner -->
+				  	<div class="carousel-inner h-100" id="carousel-home-inner">
+				    	<!-- #1 item -->
+				    	<div class="carousel-item active">
+				      		<img src="/static/assets/img/carousel-home1.png"
+				      			class="d-block w-100"
+				      			alt="..."/>
+				     		<div class="carousel-caption d-none d-md-block" id="carousel-home-caption-1">
+				        		<h4>Innovations pédagogiques à tester !</h4>
+				        		<p>En manque d'inspiration ou simplement curieux, Séez Langues vous propose sur son site des initiatives pédagogiques testées par ses auteurs, des kits prêts à l'emploi, des fiches de cours, des séances innovantes; venez découvrir le dynamisme de nos auteurs et les productions de leurs élèves !</p>
+				      		</div>
+				    	</div>
+				    	<!-- #2 item -->
+				    	<div class="carousel-item">
+				      		<img src="/static/assets/img/carousel-home2.png"
+				        		class="d-block w-100"
+				        		alt="..."/>
+				      		<div class="carousel-caption d-none d-md-block" id="carousel-home-caption-2">
+				        		<h4>Pratiques et Postures renouvelées</h4>
+				        		<p>SéezLangues vous propose une école qui s'inscrit dans son temps! Sur notre site, découvrez comment nos professeurs ont changé leurs postures, leurs pratiques et celles de leurs élèves; de la classe inversée à la classe flexible sans oublier des expérimentations locales issues de nos établissements, retrouvez la joie de travailler autrement.</p>
+				      		</div>
+				    	</div>
+				    	<!-- #3 item -->
+				    	<div class="carousel-item">
+				      		<img src="/static/assets/img/carousel-home3.png"
+				        		class="d-block w-100"
+				        		alt="..."/>
+				      		<div class="carousel-caption d-none d-md-block" id="carousel-home-caption-3">
+				        		<h4>Un apprentissage des langues tourné vers l'authentique.</h4>
+				        		<p>Les langues invitent au voyage !</p>
+				        		<p>SéezLangues vous offre sur son site des expériences, des ressources, des témoignages. Vous trouverez des idées pour un enseignement le plus authentique possible; organiser un voyage, célébrer la journée des Langues, préparer une recette avec des élèves, des séances de cours avec webcam, des témoignages de partenariats, eTwinning, le big Challenge, el Campeonato; venez découvrir, partager des intiatives</p>
+				      		</div>
+				    	</div>
+				    	<!-- #4 item -->
+				    	<div class="carousel-item">
+				      		<img src="/static/assets/img/carousel-home4.png"
+				        		class="d-block w-100"
+				        		alt="..."/>
+				      		<div class="carousel-caption d-none d-md-block" id="carousel-home-caption-4">
+				        		<h4>Partager des ressources et outils</h4>
+				        		<p>SéezLangues vous propose des outils numériques avec tutoriels, une banque de ressources numériques et pédagogiques, des cours, des fiches exploitables, des astuces, des utilitaires exploitables au quotidien par tous: du clé en main !</p>
+				      		</div>
+				    	</div>
+				 	</div>
+				  	<!-- Inner end -->
+				  	<!-- Controls -->
+				  	<a class="carousel-control-prev" href="#carousel-home"
+				    	role="button" data-bs-slide="prev">
+				    	<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+				    	<span class="visually-hidden">Previous</span>
+				  	</a>
+				  	<a class="carousel-control-next" href="#carousel-home"
+				    	role="button" data-bs-slide="next">
+				    	<span class="carousel-control-next-icon" aria-hidden="true"></span>
+				    	<span class="visually-hidden">Next</span>
+				  	</a>
+				  	<!-- Controls end -->
+				</div>
+				<!-- Carousel wrapper end -->
+			</div>
+		</div>
+	</div>
+</header>
+{% endblock %}

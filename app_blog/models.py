@@ -10,40 +10,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.template.defaultfilters import slugify
 
+from app_blog.utils import has_perm_list, has_group_perm
+
 import uuid
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=150)
-    description = models.TextField(null=True)
-    slug = models.SlugField(null=False, unique=True)
-    parent_category = models.ForeignKey(
-        'self', related_name='sub_category',
-        on_delete=models.SET_NULL, null=True)
-
-    def get_absolute_url(self):
-        return reverse('category', args=(self.slug,))
-
-    def save(self, *args, **kwargs):
-        # temp slug
-        if len(self.slug) < 1:
-            self.slug = str(uuid.uuid4())
-            super().save(*args, **kwargs)
-            self.slug = f"{slugify(self.name)}-{self.id}"
-            return super().save(*args, **kwargs)
-        else:
-            return super().save(*args, **kwargs)
-        return super().save(*args, **kwargs)
-
-    class Meta:
-        permissions = (
-            ("edit_category", "Can edit a category"),
-            ("del_category", "Can delete a category"),
-            ("view_category_forum", "Can view Forum"),
-            ("view_category_all_wo_c_f",
-                "Can view all category w/o Conseillers&Forum"),
-            ("view_category_all", "Can view all category")
-        )
 
 
 class Article(models.Model):
@@ -60,6 +29,50 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse('article', args=(self.slug,))
+
+    def get_edit_url(self):
+        return reverse('edit_article', args=(self.slug,))
+
+    def get_delete_url(self):
+        return reverse('del_article', args=(self.slug,))
+
+    def _can_be_by(self, req, first_perm, second_perm):
+        try:
+            user = User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return False
+        if self.writer == user:
+            return has_perm_list(req, [first_perm])
+        else:
+            return has_perm_list(req, [second_perm])
+
+    def can_be_edited_by(self, req):
+        return self._can_be_by(
+            req, "change_user_articles", "change_users_articles"
+        )
+
+    def can_be_deleted_by(self, req):
+        return self._can_be_by(
+            req, "del_user_articles", "del_users_articles"
+        )
+
+    def can_be_viewed_by(self, req):
+        """This method checks if req.user can view article's categories
+        and checks if req.user can access public or not public article.
+
+        :param req: request object.
+
+        :return: boolean, article can/can't be viewed by req.user.
+        """
+        cat_list = self.category_set.all()
+        clearance_list = [cat.can_be_viewed_by(req) for cat in cat_list]
+        if False in clearance_list:
+            return False
+        else:
+            if self.is_public:
+                return True
+            else:
+                return has_perm_list(req, ["view_article"])
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -86,6 +99,56 @@ class Article(models.Model):
         )
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.TextField(null=True)
+    slug = models.SlugField(null=False, unique=True)
+    parent_category = models.ForeignKey(
+        'self', related_name='sub_category',
+        on_delete=models.SET_NULL, null=True)
+    articles = models.ManyToManyField(Article)
+    groups = models.ManyToManyField(Group)
+
+    def get_absolute_url(self):
+        return reverse('category', args=(self.slug,))
+
+    def can_be_viewed_by(self, req):
+        try:
+            User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return False
+        if not len(self.groups.all()):
+            return True
+        else:
+            group_clearance = [
+                has_group_perm(req, group) for group in self.groups.all()
+            ]
+            if True in group_clearance:
+                return True
+            else:
+                return False
+
+    def save(self, *args, **kwargs):
+        # temp slug
+        if len(self.slug) < 1:
+            self.slug = str(uuid.uuid4())
+            super().save(*args, **kwargs)
+            self.slug = f"{slugify(self.name)}-{self.id}"
+            return super().save(*args, **kwargs)
+        else:
+            return super().save(*args, **kwargs)
+
+    class Meta:
+        permissions = (
+            ("edit_category", "Can edit a category"),
+            ("del_category", "Can delete a category"),
+            ("view_category_forum", "Can view Forum"),
+            ("view_category_all_wo_c_f",
+                "Can view all category w/o Conseillers&Forum"),
+            ("view_category_all", "Can view all category")
+        )
+
+
 class Comment(models.Model):
     content = models.TextField()
     original_content = models.TextField(null=True)
@@ -100,6 +163,24 @@ class Comment(models.Model):
         self.updated = timezone.now()
         return super().save(*args, **kwargs)
 
+    def get_delete_url(self):
+        return f"/del_comment?id={self.id}"
+
+    def _can_be_by(self, req, first_perm, second_perm):
+        try:
+            user = User.objects.get(username=req.user)
+        except User.DoesNotExist:
+            return False
+        if self.writer == user:
+            return has_perm_list(req, [first_perm])
+        else:
+            return has_perm_list(req, [second_perm])
+
+    def can_be_deleted_by(self, req):
+        return self._can_be_by(
+            req, "del_user_comment", "del_users_comment"
+        )
+
     class Meta:
         permissions = (
             ("edit_comment", "Can edit a comment"),
@@ -108,15 +189,20 @@ class Comment(models.Model):
         )
 
 
-class ArticleCategory(models.Model):
-    article = models.ForeignKey(
-        Article, on_delete=models.CASCADE)
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE)
+class Profile(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, unique=True)
+    description = models.TextField(null=True)
+    email_visible = models.BooleanField(default=False)
+    nb_articles = models.BigIntegerField(default=0)
+    nb_comments = models.BigIntegerField(default=0)
 
+    def update_meters(self):
+        articles = Article.objects.filter(writer=self.user)
+        comments = Comment.objects.filter(writer=self.user)
+        self.nb_articles = len(articles)
+        self.nb_comments = len(comments)
+        self.save()
 
-class CategoryGroup(models.Model):
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE)
-    group = models.ForeignKey(
-        Group, on_delete=models.CASCADE)
+    def get_absolute_url(self):
+        return reverse("profile", args=(self.user.username,))
