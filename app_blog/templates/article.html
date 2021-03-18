@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block page_content %}
+<main class="w-100" id="main-article">
+	<div class="container-fluid h-100" id="main-article-container">
+		{% if can_be_edited_by_user %}
+		<a href="/edit{{ article.get_absolute_url }}"><i class="bi bi-pencil-square"></i>Éditer l'article</a>
+		{% endif %}
+		{% if can_be_deleted_by_user %}
+		<a href="/delete{{ article.get_absolute_url }}"><i class="bi bi-trash"></i>Supprimer l'article</a>
+		{% endif %}
+		<h2>{{ article.title }}</h2>
+		{% if article.is_anonymous %}
+		<p>Ajouté le {{ article.created }} par Anonyme {% if can_view_anonymous_article %}(<a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a>){% endif %}</p>
+		{% else %}
+		<p>Ajouté le {{ article.created }} par <a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a></p>
+		{% endif %}
+		{% if article.edited %}
+		<p>Modifié le {{ article.edited }}</p>
+		{% endif %}
+		<p class="text-muted" id="main-article-description">{{ article.description }}</p>
+		<div id="main-article-content">
+			{{ content|safe }}
+		</div>
+	</div>
+</main>
+<section class="w-100" id="section-comments">
+	<div class="container" id="section-comments-container">
+		<div class="row" id="section-comments-add-comment">
+			<form action="/add_comment" method="POST">
+				{% csrf_token %}
+				<label for="input-add-comment" class="visually-hidden">Ajouter un commentaire</label>
+ 				<textarea class="form-control" name="content" id="input-add-comment" placeholder="Ajouter un commentaire" required=""></textarea>
+ 				<input type="hidden" name="article_slug" value="{{ article.slug }}">
+ 				<button type="submit" class="btn btn-primary btn-purple" id="section-comments-btn-submit">Ajouter un commentaire</button>
+			</form>
+		</div>
+		<hr>
+		{% if article.comment_set.all %}
+		{% for comment in comments %}
+		<div class="row comment">
+			<h4>{{ comment.comment.writer.username }}</h4>
+			<p class="text-muted">{{ comment.comment.created }}</p>
+			<p>{{ comment.comment.content }}</p>
+			{% if comment.can_be_deleted %}
+			<a class="text-end" href="{{ comment.comment.get_delete_url }}"><i class="bi bi-trash"></i>Supprimer</a>
+			{% endif %}
+		</div>
+		{% endfor %}
+		{% else %}
+		<p>Aucun commentaire</p>
+		{% endif %}
+	</div>
+</section>
+{% endblock %}

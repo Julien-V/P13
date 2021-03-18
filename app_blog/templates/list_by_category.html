@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css"/>
+{% endblock %}
+{% block page_content %}
+<header class="cathead" id="cathead">
+	<div class="container">
+		<div class="row">
+			<div class="col-8">
+				<h2>{{ category.name }}</h2>
+				{% if category.description %}
+				<h4>Description</h4>
+				<p>{{ category.description }}</p>
+				{% endif %}
+				<!-- path -->
+				<p><a href="{{ category.parent_category.get_absolute_url }}">
+				{{ category.parent_category.name }}</a> > <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+				</p>
+				
+				{% for cat in category.sub_category.all %}
+				<a href="{{ cat.get_absolute_url }}">{{ cat.name }}</a>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</header>
+<section class="page-section">
+	<div class="container">
+		{% if articles %}
+		<table id="articles-list" class="table table-striped" style="width:100%">
+		<thead>
+			<tr>
+				<th>Titre</th>
+				<th>Auteur</th>
+				<th>Date d'ajout</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for article in articles %}
+			<tr class="row article-detail">
+				<th id="title">
+					<h4 id="article-detail-title">
+						<a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+					</h4>
+				</th>
+				{% if article.is_anonymous %}
+				<th id="writer">Anonyme {% if can_view_anonymous_article %} (<a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a>){% endif %}</th>
+				{% else %}
+				<th id="writer"><a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a></th>
+				{% endif %}
+				<th class="text-muted" id="created">({{ article.created }})</th>
+				<th id="description">{{ article.description }}</th>
+			</tr>
+			{% endfor %}
+		</tbody>
+		</table>
+		{% else %}
+		<div class="row text-center">
+			<div class="col-lg-8">
+				<h3>Aucun article</h3>
+			</div>
+		{% endif %}
+	</div>
+</section>
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#articles-list').DataTable({
+		"language": {
+			"url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/French.json",
+			"autoWidth": false
+		}
+	});
+} );
+</script>
+{% endblock %}

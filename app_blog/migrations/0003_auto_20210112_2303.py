@@ -21,7 +21,6 @@ class CreateCategories:
         self.cat_list = self._make_cat_list()
         self.Group = apps.get_model("auth", "Group")
         self.Category = apps.get_model("app_blog", "Category")
-        self.CategoryGroup = apps.get_model("app_blog", "CategoryGroup")
 
     def _make_cat_list(self):
         """This method recursively extracts all nested dict in
@@ -31,11 +30,11 @@ class CreateCategories:
         [
             {
                 "name": <str:cat1_name>,
-                "group": <str:cat1_group>,
+                "group": <list:cat1_group>,
                 "sub_cat": [
                     {
                         "name": <str:cat1a_name>,
-                        "group": <str:cat1a_group>,
+                        "group": <list:cat1a_group>,
                         "sub_cat": [cat1aa]
                     }
                 ]
@@ -45,24 +44,24 @@ class CreateCategories:
         [
             {
                 "name": <str:cat1_name>,
-                "group": <str:cat1_group>,
+                "group": <list:cat1_group>,
                 "sub_cat": [
                     {
                         "name": <str:cat1a_name>,
-                        "group": <str:cat1a_group>,
+                        "group": <list:cat1a_group>,
                         "sub_cat": [cat1aa]
                     }
                 ]
             }, (
                 {
                     "name": <str:cat1a_name>,
-                    "group": <str:cat1a_group>,
+                    "group": <list:cat1a_group>,
                     "sub_cat": [cat1aa]
                 }, <str:cat1_name>,
             ), (
                 {
                     "name": <str:cat1aa_name>,
-                    "group": <str:cat1aa_group>,
+                    "group": <list:cat1aa_group>,
                     "sub_cat": None
                 }, <str:cat1a_name>,
             ),
@@ -115,27 +114,26 @@ class CreateCategories:
         return cat_obj
 
     def _link_cat_group(self, cat, cat_obj):
-        """This method links a Category and a Group
+        """This method links a Category to a list of Group
 
         :param cat: dict(name, group, sub_cat)
         :param cat_obj: app_blog.models.Category object
 
-        :return cat_group: app_blog.models.CategoryGroup object
+        :return cat_obj_list: list of app_blog.models.Category object
         """
-        group_name = cat['group']  # get group name
-        try:
-            # get Group object:
-            group_obj = self.Group.objects.get(name=group_name)
-            # link group_obj and cat_obj in CategoryGroup
-            cat_group = self.CategoryGroup.objects.create(
-                category=cat_obj,
-                group=group_obj)
-            # save
-            cat_group.save()
-        except self.Group.DoesNotExist:
-            print(f"[!] Group {group_name} DoesNotExist ({cat})")
-            return None
-        return cat_group
+        cat_obj_list = list()
+        for group_name in cat['group']:
+            try:
+                # get Group object:
+                group_obj = self.Group.objects.get(name=group_name)
+                # Category.groups.add
+                cat_obj.groups.add(group_obj)
+                # save
+                cat_obj.save()
+                cat_obj_list.append(cat_obj)
+            except self.Group.DoesNotExist:
+                print(f"[!] Group {group_name} DoesNotExist ({cat})")
+        return cat_obj_list
 
     def run(self):
         for cat in self.cat_list:
@@ -146,7 +144,7 @@ class CreateCategories:
                 parent = cat[1]
             cat_obj = self._make_cat(cat_temp['name'], parent)
             if cat_temp['group'] is not None:
-                # add to CategoryGroup
+                # add to Category.groups
                 self._link_cat_group(cat_temp, cat_obj)
         return self.cat_list
 

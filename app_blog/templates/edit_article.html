@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% block custom_head %}
+<script src="/static/tinymce/js/tinymce/tinymce.min.js"></script>
+<script type="text/javascript">
+  	tinymce.init({
+		selector: '#input-tinymce',
+		plugins: 'fullscreen image media table lists advlist toc searchreplace',
+		language: 'fr_FR',
+        setup: function (editor) {
+            editor.on('init', function (e) {
+                let content = unescape("{{ content|escapejs }}");
+                editor.setContent(content);
+            });
+        },
+    });
+</script>
+{% endblock %}
+{% block page_content %}
+<main class="w-100" id="main-add-article">
+	<div class="container-fluid h-100" id="main-add-article-container">
+	<h2>Editer un article</h2>
+	<form action="/edit{{ article.get_absolute_url }}" class="h-100 text-center form-add-article" method="POST">
+ 		{% csrf_token %}
+        <!-- title -->
+ 		<label for="input-add-article-title" class="visually-hidden">Titre</label>
+ 		<input type="input" class="form-control" name="title" id="input-add-article-title" placeholder="Titre" required="" autofocus="" value="{{ article.title }}">
+        <!-- is_public // is_anonymous -->
+ 		<div id="main-add-article-row-checkboxes">
+            <!-- is_public -->
+	 		<div class="row" id="main-add-article-row-checkbox">
+				<label for="input-add-article-is_public">Article public</label>
+                {% if article.is_public %}
+				<input type="checkbox" name="is_public" id="input-add-article-is_public" checked="">
+                {% else %}
+                <input type="checkbox" name="is_public" id="input-add-article-is_public">
+                {% endif %}
+			</div>
+            <!-- is_anonymous -->
+			<div class="row" id="main-add-article-row-checkbox">
+				<label for="input-add-article-is_anonymous">Article anonyme</label>
+                {% if article.is_public %}
+                <input type="checkbox" name="is_anonymous" id="input-add-article-is_anonymous" label="Article anonyme" checked="">
+                {% else %}
+                <input type="checkbox" name="is_anonymous" id="input-add-article-is_anonymous" label="Article anonyme">
+                {% endif %}
+			</div>
+		</div>
+        <!-- description -->
+ 		<label for="input-add-article-description" class="visually-hidden">Description</label>
+ 		<textarea class="form-control" name="description" id="input-add-article-description" placeholder="Description">{{ article.description }}</textarea>
+        <!-- content -->
+    	<label for="input-tinymce" class="visually-hidden">Contenu de l'article</label>
+    	<textarea class="form-control" name="content" id="input-tinymce" placeholder="Contenu de l'article"></textarea>
+        <!-- category -->
+    	<div class="dropup" id="main-add-article-category">
+    		<button type="button" class="btn btn-primary btn-purple dropdown-toggle" data-bs-toggle="dropdown">
+    			Catégories
+    			<span class="value" data-label-placement="true"></span>
+    		</button>
+    		<ul class="dropdown-menu" id="main-add-article-category-ul-dropdown-menu">
+    			<div class="row">
+    			{% for cat in categories %}
+    			{% if not cat.parent_category %}
+    			<li class="col-lg-4">
+    				<label for="cat-{{ cat.id }}">
+                        {% if cat in article.category_set.all %}
+    					<input type="checkbox" name="cat-{{ cat.name }}" id="cat-{{ cat.id }}" checked> {{ cat.name }}
+                        {% else %}
+                        <input type="checkbox" name="cat-{{ cat.name }}" id="cat-{{ cat.id }}"> {{ cat.name }}
+                        {% endif %}
+    				</label>
+    				{% if cat.sub_category.all %}
+    				<ul id="main-add-article-sub-category-ul">
+    					{% for sub_cat in cat.sub_category.all|order_by_id %}
+    					<li>
+    						<label for="cat-{{ cat.id }}-{{ sub_cat.id }}">
+    							<input type="checkbox" name="subcat-{{ sub_cat.name }}" id="cat-{{ cat.id }}-{{ sub_cat.id }}" {% if sub_cat in article.category_set.all %}checked{% endif %}> {{ sub_cat.name }}
+    						</label>
+    					</li>
+    					{% endfor %}
+    				</ul>
+    				{% endif %}
+    			</li>
+    			{% endif %}
+    			{% endfor %}
+    			</div>
+    		</ul>
+    	</div>
+        <!-- submit button -->
+    	<button class="w-50 btn btn-primary btn-purple" type="submit" id="main-add-article-submit">Enregistrer les modifications</button>
+  	</form>
+  	</div>
+</main>
+{% endblock %}
+{% block custom_js %}
+<script src="/static/js/indeterminate_checkboxes.js"></script>
+{% endblock %}

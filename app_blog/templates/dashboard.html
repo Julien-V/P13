@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block custom_head %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap5.min.css"/>
+{% endblock %}
+{% block page_content %}
+<main id="main-dashboard">
+<h1>Administration</h1>
+<ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">Utilisateurs</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="articles-tab" data-bs-toggle="tab" data-bs-target="#articles" type="button" role="tab" aria-controls="articles" aria-selected="false">Articles</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="false">Commentaires</button>
+    </li>
+</ul>
+<div class="tab-content" id="dashboard-content">
+    {% if users %}
+    <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+		<table id="d-users-list" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Nom d'utilisateur</th>
+                    <th>Email</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Groupe</th>
+                    <th>Dernière connexion</th>
+                    <th>Date d'inscription</th>
+                    {% if can_block %}
+                    <th>Actif</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="d-user-detail" id="user-detail-{{ user.user.id }}">
+                    <th class="user-username" id="d-username"><a href="{{ user.user.profile.get_absolute_url }}">{{ user.user.username }}</a></th>
+                    <th id="d-email">{{ user.user.email }}</th>
+                    <th id="d-last_name">{{ user.user.last_name }}</th>
+                    <th id="d-first_name">{{ user.user.first_name }}</th>
+                    <th id="d-groups">
+                        {% if can_change_groups %}
+                        <a class="badge bg-purple cstm-badge-outline d-edit-groups-link" href="#" data-bs-toggle="modal" name="{{ user.user.username }}" data-bs-target="#changeGroupsModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        {% endif %}
+                        {% for group in user.user.groups.all %}
+                        <span class="badge bg-primary group-name">{{ group.name }}</span>
+                        {% endfor %}
+                    </th>
+                    <th id="d-last_login">{{ user.user.last_login|date:"Y/m/d H:i:s" }}</th>
+                    <th id="d-date_joined">{{ user.user.date_joined|date:"Y/m/d H:i:s" }}</th>
+                    {% if can_block %}
+                    <th id="d-is-active">
+                        <a class="badge bg-purple cstm-badge-outline block-user-link" href="/block?username={{ user.user.username }}">
+                        {% if user.user.is_active %}
+                        <i class="bi bi-unlock-fill">Actif</i>
+                        {% else %}
+                        <i class="bi bi-lock-fill">Inactif</i>
+                        {% endif %}
+                        </a>
+                    </th>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+    </div>
+    {% endif %}
+    {% if articles %}
+    <div class="tab-pane fade" id="articles" role="tabpanel" aria-labelledby="articles-tab">
+        <table id="d-articles-list" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Date d'ajout</th>
+                    <th>Date d'édition</th>
+                    <th>Auteur</th>
+                    <th>Catégorie(s)</th>
+                    <th>Editer</th>
+                    <th>Supp.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in articles %}
+                <tr class="d-article-detail">
+                    <th id="d-title"><a href="{{ article.article.get_absolute_url }}">{{ article.article.title }}</a></th>
+                    <th id="d-created">{{ article.article.created|date:"Y/m/d H:i:s" }}</th>
+                    <th id="d-updated">{{ article.article.updated|date:"Y/m/d H:i:s" }}</th>
+                    {% if article.article.is_anonymous %}
+                    <th id="d-writer">Anonyme {% if can_view_anonymous_article %}(<a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a>){% endif %}</th>
+                    {% else %}
+                    <th id="d-writer"><a href="{{ article.article.writer.profile.get_absolute_url }}">{{ article.article.writer }}</a></th>
+                    {% endif %}
+                    <th id="d-categories">
+                        {% for cat in article.article.category_set.all %}
+                        <span class="badge bg-primary badge-cat-name">{{ cat.name }}</span>
+                        {% endfor %}
+                    </th>
+                    {% if article.can_be_edited %}
+                    <th id="d-edit-button">
+                        <a href="{{ article.article.get_edit_url }}">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </th>
+                    {% else %}
+                    <th id="d-edit-button">Non</th>
+                    {% endif %}
+                    {% if article.can_be_deleted %}
+                    <th id="d-delete-button">
+                        <a href="{{ article.article.get_delete_url }}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </th>
+                    {% else %}
+                    <th id="d-delete-button">Non</th>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+    </div>
+    {% endif %}
+    {% if comments %}
+    <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+        <table id="d-comments-list" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Article</th>
+                    <th>Auteur</th>
+                    <th>Date d'ajout</th>
+                    <th>Commentaire</th>
+                    <th>Supp.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in comments %}
+                <tr class="d-comment-detail">
+                    <th id="d-article"><a href="{{ comment.comment.article.get_absolute_url }}">{{ comment.comment.article.title }}</a></th>
+                    <th id="d-writer"><a href="{{ comment.comment.writer.profile.get_absolute_url }}">{{ comment.comment.writer }}</a></th>
+                    <th id="d-created">{{ comment.comment.created|date:"Y/m/d H:i:s" }}</th>
+                    <th id="d-content">{{ comment.comment.content }}</th>
+                    {% if comment.can_be_deleted %}
+                    <th id="d-delete-button">
+                        <a href="{{ comment.comment.get_delete_url }}">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </th>
+                    {% else %}
+                    <th id="d-delete-button">Non</th>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+		</table>
+    </div>
+    {% endif %}
+</div>
+</main>
+{% if can_change_groups %}
+{% include "change_user_groups.html" %}
+{% endif %}
+{% endblock %}
+{% block custom_js %}
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap5.min.js"></script>
+<script>
+$(document).ready(function() {
+    $("table[id^=d-][id$=-list]").each(function() {
+        console.log($(this))
+        $(this).DataTable({
+		    "language": {
+		    	"url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/French.json",
+			    "autoWidth": false
+		    }
+	    });
+    })
+} );
+</script>
+{% if can_change_groups %}
+<script type="text/javascript" src="/static/js/app_blog_change_groups.js"></script>
+{% endif %}
+{% if can_block %}
+<script type="text/javascript" src="/static/js/app_blog_block_user.js"></script>
+{% endif %}
+{% endblock %}

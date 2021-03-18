@@ -4,6 +4,9 @@
 from .base import *
 
 DEBUG = True
+MESSAGE_LEVEL = 10  # DEBUG
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -30,6 +33,7 @@ MIDDLEWARE = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'seezlangues'
+        'NAME': 'seezlangues',
+        'USER': 'julien'
     }
 }

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block page_content %}
+<main class="form-signup text-center w-100 h-100" id="main-signup">
+  	<form action="{{ req.path }}" method="POST">
+  		{% csrf_token %}
+  		<img class="mb-4" src="/static/assets/logo.svg" alt="" width="172" height="157">
+    	<h1 class="h3 mb-3 fw-normal">Inscription</h1>
+    	{% if error %}
+    	<p>{{ error|escape }}</p>
+    	{% endif %}
+    	<label for="last_name" class="visually-hidden">Nom</label>
+    	<input type="text" name="last_name" id="last_name" class="form-control" placeholder="Nom" required="" autofocus="">
+    	<label for="first_name" class="visually-hidden">Prénom</label>
+    	<input type="text" name="first_name" id="first_name" class="form-control" placeholder="Prénom" required="" autofocus="">
+    	<label for="username" class="visually-hidden">Nom d'utilisateur</label>
+    	<input type="text" name="username" id="username" class="form-control" placeholder="Nom d'utilisateur" required="" autofocus="">
+    	<label for="email" class="visually-hidden">Adresse email</label>
+    	<input type="text" name="email" id="email" class="form-control" placeholder="Adresse Email" required="" autofocus="">
+    	<label for="password1" class="visually-hidden">Mot de passe</label>
+    	<input type="password" name="password1" id="password" class="form-control" placeholder="Mot de passe" required="">
+    	<label for="password2" class="visually-hidden">Confirmer le mot de passe</label>
+    	<input type="password" name="password2" id="password2" class="form-control" placeholder="Confirmer le mot de passe" required="">
+    	<button class="w-100 btn btn-primary btn-purple" type="submit">S'inscrire</button>
+  	</form>
+</main>
+{% endblock %}
