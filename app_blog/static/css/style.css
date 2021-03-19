@@ -20,10 +20,36 @@ html {
   height: 100%;
 }
 
+/* navbar */
 .navbar {
   position: sticky;
 }
 
+.navbar-collapse .nav-link {
+  padding-left: 1%;
+}
+
+p#navbar-brand-title {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  p#navbar-brand-title {
+    display: inline;
+  } 
+}
+
+@media (min-width: 1200px) {
+  .navbar-collapse .nav-link {
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .navbar-collapse .nav-link {
+    font-size: 1rem;
+  }
+}
 /* messages */
 #messages-container {
   margin-top: 7%;
