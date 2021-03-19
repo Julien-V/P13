@@ -257,6 +257,10 @@ header.masthead div#header-content {
   margin: auto;
 }
 
+[id^=main-sign] > form > input {
+  margin-bottom: 1%;
+}
+
 /* /category/ */
 #cathead {
   padding-top: 2%;
