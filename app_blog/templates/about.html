@@ -4,7 +4,7 @@
 	<div class="container-fluid h-100 about" id='main-about-container'>
 		<h2 class="text-center">A propos</h2>
 		<div class="row">
-			<p class="twocols"><span style="float:right;">Mais qui est ce drôle de professeur ?</span>
+			<p class="twocols-lg" id="about-us"><span style="float:right;">Mais qui est ce drôle de professeur ?</span>
 				<br><br>
 <strong>C’est un professeur de langues et avant tout un voyageur !</strong>
 <br><br>
@@ -38,7 +38,7 @@ La prise de risques fait peur, l’inspiration n’est pas toujours au rendez-vo
 <br><br>
 Avec <i style="color:green;">SeézLangues</i> nous voulons, en toute bienveillance et professionnalisme, non seulement proposer inspiration et ressources, afficher notre dynamisme mais aussi créer du lien entre nous, nous ces voyageurs-professeurs de langues, pour vivre pleinement notre passion et la partager avec les jeunes de nos établissements !
 <br><br><br>
-<strong style="float: right;">Alors, n’hésitez pas, rejoignez-nous !</strong>
+<strong style="float: right;">{% if not user.is_authenticated %}<a id="button-join-us" class="btn btn-primary btn-purple" href="/sign_up">Alors, n’hésitez pas, rejoignez-nous !</a>{% else %}Alors, n’hésitez pas, rejoignez-nous !{% endif %}</strong>
 </p>
 		</div>
 	</div>

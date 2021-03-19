@@ -274,9 +274,17 @@ header.masthead div#header-content {
 #main-add-article-container, #main-article-container, #main-about-container {
   padding-top: 2%;
   border-radius: 2%;
-  max-width: 70%;
+  max-width: 95%;
   background-color: #ffda60;
   box-shadow: 8px 0px 13px 8px rgb(0, 0, 0, 0.25);
+}
+
+@media (min-width: 768px) {
+  #main-add-article-container,
+  #main-article-container, 
+  #main-about-container {
+    max-width: 80%;
+  }
 }
 
 .form-add-article {
@@ -354,15 +362,20 @@ header.masthead div#header-content {
 }
 
 /* /about */
-.twocols {
-  padding-top:2%;
-  column-count: 2;
-  column-gap: 3%;
-  column-rule: double;
+p#about-us {
+  padding-top: 2%;
 }
 
 .about {
   font-family: sans-serif;
+}
+
+@media (min-width: 992px) {
+  .twocols-lg {
+    column-count: 2;
+    column-gap: 3%;
+    column-rule: double;
+  }
 }
 
 /* /category/ */
