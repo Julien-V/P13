@@ -477,6 +477,14 @@ p#about-us {
   padding-top: 3%;
 }
 
+#profile-div-info {
+  height: 50%;
+}
+
 .tab-pane {
   padding-top: 2%;
+}
+
+#p-articles-list_wrapper > div:nth-child(2) > div {
+  overflow-x: auto;
 }
