@@ -472,6 +472,10 @@ p#about-us {
   margin-left: 2px;
 }
 
+#d-users-list_wrapper > div:nth-child(2) > div {
+  overflow-x: auto;
+}
+
 /* /user/<str:username>/ */
 #main-profile {
   padding-top: 3%;
