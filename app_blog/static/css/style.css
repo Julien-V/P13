@@ -267,6 +267,14 @@ header.masthead div#header-content {
   margin-bottom: 1%
 }
 
+#sort-div {
+  margin-bottom: 1%;
+}
+
+#select-sort-articles {
+  width: auto;
+  display: inline-block;
+}
 
 /* add_article */
 #main-add-article, #main-article, #main-about {
@@ -433,6 +441,10 @@ p#about-us {
   color: var(--color-purple);
   font-weight: normal;
   font-style: italic;
+}
+
+#articles-list > thead > tr {
+  display: none;
 }
 
 /* /dashboard/ */
