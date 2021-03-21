@@ -33,13 +33,10 @@ p#navbar-brand-title {
   display: none;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
   p#navbar-brand-title {
     display: inline;
   } 
-}
-
-@media (min-width: 1200px) {
   .navbar-collapse .nav-link {
     font-size: 0.85rem;
   }
