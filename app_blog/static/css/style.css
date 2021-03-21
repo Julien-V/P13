@@ -360,6 +360,11 @@ header.masthead div#header-content {
   padding-bottom: 1%;
 }
 
+div#main-article-content img {
+  max-width: 100%;
+  height: auto;
+}
+
 #section-comments-btn-submit {
   margin-top:1%;
 }
