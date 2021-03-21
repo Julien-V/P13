@@ -484,7 +484,7 @@ p#about-us {
   margin-left: 2px;
 }
 
-#d-users-list_wrapper > div:nth-child(2) > div {
+[id$=-list_wrapper] > div:nth-child(2) > div {
   overflow-x: auto;
 }
 
@@ -499,8 +499,4 @@ p#about-us {
 
 .tab-pane {
   padding-top: 2%;
-}
-
-#p-articles-list_wrapper > div:nth-child(2) > div {
-  overflow-x: auto;
 }
