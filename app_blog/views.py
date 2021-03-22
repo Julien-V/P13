@@ -32,7 +32,8 @@ def navbar_init(req):
     context = {
         "navbar_cat_list": list(),
         "navbar_sub_cat_list": list(),
-        "dashboard_access": has_perm_list(req, ["view_category_all"])
+        "dashboard_access": has_perm_list(req, ["view_category_all"]),
+        "can_add_article": has_perm_list(req, ["add_article"])
     }
     categories = Category.objects.all().order_by("id")
     for cat in categories:

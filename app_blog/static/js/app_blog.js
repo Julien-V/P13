@@ -6,7 +6,6 @@ function add_headers() {
   return headers;
 }
 
-
 window.POST = function(url, data) {
   return fetch(url, {method: "POST", headers: add_headers(), body: JSON.stringify(data)});
 }
@@ -23,8 +22,28 @@ function close_bs_alert() {
   })
 }
 
+function navbar_hide_title() {
+  let title = document.getElementById("navbar-brand-title");
+  let button = document.getElementsByClassName("navbar-toggler")[0];
+  let isExpanded = button.getAttribute('aria-expanded');
+  if (isExpanded === "true") {
+    title.style = "display: inline;";
+  } else {
+    title.style = "display: none;";
+  }
+}
+/* functions called when window is loaded */
 function auto_close_bs_alert() {
   setTimeout(close_bs_alert, 3000);
 }
 
-window.addEventListener('load', auto_close_bs_alert);
+function navbar_responsive() {
+  var navbarToggler = document.getElementsByClassName("navbar-toggler")[0];
+  navbarToggler.addEventListener('click', navbar_hide_title);
+}
+
+window.addEventListener('load', function () {
+    auto_close_bs_alert();
+    navbar_responsive();
+  }
+);

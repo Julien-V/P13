@@ -13,15 +13,17 @@
 	<!-- Custom CSS -->
 	<link rel="stylesheet" type="text/css" href="/static/css/style.css">
 	<!-- Title -->
-	<title>Seezlangues</title>
+	<title>SéezLangues</title>
 	<!-- custom_head -->
 	{% block custom_head %}
 	{% endblock %}
 </head>
 <body>
 	<!-- Navbar -->
-	<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top">
-		<a class="navbar-brand" href="/"><img src="/static/assets/logo.svg" width="60" heigth="60" -->Seezlangues</a>
+	<nav class="navbar navbar-expand-xl navbar-light bg-light fixed-top">
+		<a class="navbar-brand" href="/"><img src="/static/assets/logo.svg" width="60" heigth="60" -->
+		<p id="navbar-brand-title">Séezlangues</p>
+		</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     		<span class="navbar-toggler-icon"></span>
   		</button>
@@ -52,7 +54,9 @@
   			</ul>
   		</div>
     	{% if user.is_authenticated %}
+		{% if can_add_article %}
     	<a class="btn btn-primary btn-purple" href="/add_article">Ajouter un article</a>
+		{% endif %}
 		<a class="nav-link" href="{{ profile_link }}"><i class="bi bi-person"></i></a>
 		{% if dashboard_access %}
 		<a class="nav-link" href="/dashboard"><i class="bi bi-sliders"></i></a>
