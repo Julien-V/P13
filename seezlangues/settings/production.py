@@ -13,6 +13,9 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 DEBUG = False
 
 ALLOWED_HOSTS = ['localhost']
+ip_host = os.environ.get('IP_HOST_SEEZLANGUES', None)
+if ip_host:
+    ALLOWED_HOSTS.append(ip_host)
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
