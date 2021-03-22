@@ -11,6 +11,7 @@ from django.http import HttpResponseNotFound, HttpResponse
 from django.shortcuts import render, redirect, reverse
 
 from html import unescape
+import logging
 
 from app_blog.forms import ConnectionForm, RegisterForm
 from app_blog.forms import AddArticleForm, EditArticleForm, AddCommentForm
@@ -22,6 +23,16 @@ from app_blog.utils import redirect_next
 from app_blog.utils import clean_post_article_fields
 
 
+###############################################################################
+# Logs
+###############################################################################
+logger = logging.getLogger(__name__)
+logger.setLevel(20)
+
+
+###############################################################################
+# navbar_init
+###############################################################################
 def navbar_init(req):
     """Initializes navbar
 
