@@ -20,10 +20,33 @@ html {
   height: 100%;
 }
 
+/* navbar */
 .navbar {
   position: sticky;
 }
 
+.navbar-collapse .nav-link {
+  padding-left: 1%;
+}
+
+p#navbar-brand-title {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  p#navbar-brand-title {
+    display: inline;
+  } 
+  .navbar-collapse .nav-link {
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .navbar-collapse .nav-link {
+    font-size: 1rem;
+  }
+}
 /* messages */
 #messages-container {
   margin-top: 7%;
@@ -231,12 +254,24 @@ header.masthead div#header-content {
   margin: auto;
 }
 
+[id^=main-sign] > form > input {
+  margin-bottom: 1%;
+}
+
 /* /category/ */
 #cathead {
   padding-top: 2%;
   margin-bottom: 1%
 }
 
+#sort-div {
+  margin-bottom: 1%;
+}
+
+#select-sort-articles {
+  width: auto;
+  display: inline-block;
+}
 
 /* add_article */
 #main-add-article, #main-article, #main-about {
@@ -248,9 +283,17 @@ header.masthead div#header-content {
 #main-add-article-container, #main-article-container, #main-about-container {
   padding-top: 2%;
   border-radius: 2%;
-  max-width: 70%;
+  max-width: 95%;
   background-color: #ffda60;
   box-shadow: 8px 0px 13px 8px rgb(0, 0, 0, 0.25);
+}
+
+@media (min-width: 768px) {
+  #main-add-article-container,
+  #main-article-container, 
+  #main-about-container {
+    max-width: 80%;
+  }
 }
 
 .form-add-article {
@@ -317,6 +360,11 @@ header.masthead div#header-content {
   padding-bottom: 1%;
 }
 
+div#main-article-content img {
+  max-width: 100%;
+  height: auto;
+}
+
 #section-comments-btn-submit {
   margin-top:1%;
 }
@@ -328,15 +376,20 @@ header.masthead div#header-content {
 }
 
 /* /about */
-.twocols {
-  padding-top:2%;
-  column-count: 2;
-  column-gap: 3%;
-  column-rule: double;
+p#about-us {
+  padding-top: 2%;
 }
 
 .about {
   font-family: sans-serif;
+}
+
+@media (min-width: 992px) {
+  .twocols-lg {
+    column-count: 2;
+    column-gap: 3%;
+    column-rule: double;
+  }
 }
 
 /* /category/ */
@@ -392,6 +445,10 @@ header.masthead div#header-content {
   font-style: italic;
 }
 
+#articles-list > thead > tr {
+  display: none;
+}
+
 /* /dashboard/ */
 #main-dashboard {
   padding-top: 2%;
@@ -429,9 +486,17 @@ header.masthead div#header-content {
   margin-left: 2px;
 }
 
+[id$=-list_wrapper] > div:nth-child(2) > div {
+  overflow-x: auto;
+}
+
 /* /user/<str:username>/ */
 #main-profile {
   padding-top: 3%;
+}
+
+#profile-div-info {
+  height: 50%;
 }
 
 .tab-pane {

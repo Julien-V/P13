@@ -72,10 +72,11 @@
 $(document).ready(function() {
     $('#articles-list').DataTable({
 		"language": {
-			"url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/French.json",
-			"autoWidth": false
-		}
+			"url": "//cdn.datatables.net/plug-ins/1.10.22/i18n/French.json"
+		},
+		"autoWidth": false,
 	});
 } );
 </script>
+<script type="text/javascript" src="/static/js/app_blog_datatable.js"></script>
 {% endblock %}
