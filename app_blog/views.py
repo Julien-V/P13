@@ -217,8 +217,12 @@ def add_article(req):
         if form.is_valid():
             article = form.save()
             for cat in cat_list:
-                cat.articles.add(article)
-                cat.save()
+                if cat.can_be_viewed_by(req):
+                    cat.articles.add(article)
+                    cat.save()
+                else:
+                    messages.warn(
+                        req, f"Impossible d'ajouter l'article dans {cat.name}")
             user.profile.update_meters()
             messages.success(req, 'Article ajouté !')
             return redirect(article.get_absolute_url())
@@ -297,8 +301,12 @@ def edit_article(req, slug):
         if form.is_valid():
             article = form.save()
             for cat in cat_list:
-                cat.articles.add(article)
-                cat.save()
+                if cat.can_be_viewed_by(req):
+                    cat.articles.add(article)
+                    cat.save()
+                else:
+                    messages.warn(
+                        req, f"Impossible d'ajouter l'article dans {cat.name}")
             user.profile.update_meters()
             messages.success(req, "Article modifié !")
             return redirect(article.get_absolute_url())
