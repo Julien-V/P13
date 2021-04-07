@@ -307,7 +307,7 @@ def edit_article(req, slug):
         if form.is_valid():
             article = form.save()
             for cat in cat_list:
-                if cat.can_be_viewed_by(req):
+                if cat in visible_cat:
                     cat.articles.add(article)
                     cat.save()
                 else:
