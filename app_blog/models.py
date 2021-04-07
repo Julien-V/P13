@@ -209,7 +209,7 @@ class Profile(models.Model):
 
     def get_visible_categories(self):
         """Returns a QuerySet of all categories visible by user
-        
+
         :return categories: QuerySet object
         """
         if self.user.is_superuser:

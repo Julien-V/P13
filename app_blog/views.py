@@ -201,10 +201,14 @@ def add_article(req):
     and add Article to DB
     """
     error = False
+    # get user
+    user = User.objects.get(username=req.user)
+    # get visible cat
+    visible_cat = list()
+    for cat in user.profile.get_visible_categories().order_by("id"):
+        visible_cat.append(cat)
     if req.method == "POST":
         form_fields = clean_post_article_fields(req.POST.copy())
-        # get user
-        user = User.objects.get(username=req.user)
         form_fields["writer"] = user
         cat_dict = {c: None for c in form_fields.pop("cat_list")}
         for key in cat_dict.keys():
@@ -219,7 +223,7 @@ def add_article(req):
         if form.is_valid():
             article = form.save()
             for cat in cat_list:
-                if cat.can_be_viewed_by(req):
+                if cat in visible_cat:
                     cat.articles.add(article)
                     cat.save()
                 else:
@@ -230,12 +234,8 @@ def add_article(req):
             return redirect(article.get_absolute_url())
         else:
             error = form.errors
-    categories = list()
-    for cat in Category.objects.all().order_by("id"):
-        if cat.can_be_viewed_by(req):
-            categories.append(cat)
     context = {
-        "categories": categories,
+        "categories": visible_cat,
         "error": error
     }
     context = {**context, **navbar_init(req)}
@@ -285,9 +285,13 @@ def edit_article(req, slug):
         messages.error(
             req, "Vous n'avez pas le droit de modifier cet article.")
         return HttpResponseNotFound()
+    user = User.objects.get(username=req.user)
+    # get visible cat
+    visible_cat = list()
+    for cat in user.profile.get_visible_categories().order_by("id"):
+        visible_cat.append(cat)
     if req.method == "POST":
         form_fields = clean_post_article_fields(req.POST.copy())
-        user = User.objects.get(username=req.user)
         form_fields["writer"] = user
         form = EditArticleForm(form_fields, instance=article)
         article.category_set.clear()
@@ -314,13 +318,9 @@ def edit_article(req, slug):
             return redirect(article.get_absolute_url())
         else:
             error = form.errors
-    categories = list()
-    for cat in Category.objects.all().order_by("id"):
-        if cat.can_be_viewed_by(req):
-            categories.append(cat)
     context = {
         "content": "".join(x for x in article.content.splitlines()),
-        "categories": categories,
+        "categories": visible_cat,
         "article": article,
         "error": error
     }
