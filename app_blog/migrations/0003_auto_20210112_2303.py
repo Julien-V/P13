@@ -113,26 +113,24 @@ class CreateCategories:
         # except ValidationError ?
         return cat_obj
 
-    def _link_cat_group(self, cat, cat_obj):
+    def _link_cat_group(self, cat, cat_obj, group_list):
         """This method links a Category to a list of Group
 
         :param cat: dict(name, group, sub_cat)
         :param cat_obj: app_blog.models.Category object
+        :param group_list: list of Group object
 
         :return cat_obj_list: list of app_blog.models.Category object
         """
         cat_obj_list = list()
-        for group_name in cat['group']:
-            try:
-                # get Group object:
-                group_obj = self.Group.objects.get(name=group_name)
-                # Category.groups.add
-                cat_obj.groups.add(group_obj)
-                # save
-                cat_obj.save()
-                cat_obj_list.append(cat_obj)
-            except self.Group.DoesNotExist:
-                print(f"[!] Group {group_name} DoesNotExist ({cat})")
+        try:
+            # Category.groups.add
+            cat_obj.groups.add(*group_list)
+            # save
+            cat_obj.save()
+            cat_obj_list.append(cat_obj)
+        except self.Group.DoesNotExist:
+            print(f"[!] Group {group_list} DoesNotExist ({cat})")
         return cat_obj_list
 
     def run(self):
@@ -144,8 +142,16 @@ class CreateCategories:
                 parent = cat[1]
             cat_obj = self._make_cat(cat_temp['name'], parent)
             if cat_temp['group'] is not None:
-                # add to Category.groups
-                self._link_cat_group(cat_temp, cat_obj)
+                # restricted category
+                groups = cat_temp['group']
+                groups_obj = [
+                    self.Group.objects.get(name=g_name) for g_name in groups
+                ]
+            else:
+                # public category
+                groups_obj = [group for group in self.Group.objects.all()]
+            # add to Category.groups
+            self._link_cat_group(cat_temp, cat_obj, groups_obj)
         return self.cat_list
 
 
