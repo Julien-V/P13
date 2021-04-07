@@ -43,24 +43,15 @@ def navbar_init(req):
     context = {
         "navbar_cat_list": list(),
         "navbar_sub_cat_list": list(),
-        "dashboard_access": has_perm_list(req, ["view_category_all"]),
-        "can_add_article": has_perm_list(req, ["add_article"])
+        "dashboard_access": False,
+        "can_add_article": False
     }
-    categories = Category.objects.all().order_by("id")
-    for cat in categories:
-        if cat.can_be_viewed_by(req):
-            if not cat.parent_category:
-                context["navbar_cat_list"].append(cat)
-            else:
-                context["navbar_sub_cat_list"].append(cat.name)
     if req.user.is_authenticated:
+        # get user
+        user = User.objects.get(username=req.user)
+        # get profile url
         try:
-            user = User.objects.get(username=req.user)
             context['profile_link'] = user.profile.get_absolute_url()
-        except User.DoesNotExist:
-            messages.error(
-                req, f"Utilisateur inconnu : {req.user}"
-            )
         except Profile.DoesNotExist:
             profile = Profile(user=user)
             profile.save()
@@ -69,6 +60,17 @@ def navbar_init(req):
             )
             user.refresh_from_db(fields=["profile"])
             context['profile_link'] = user.profile.get_absolute_url()
+        # get categories
+        categories = user.profile.get_visible_categories().order_by('id')
+        for cat in categories:
+            if not cat.parent_category:
+                context["navbar_cat_list"].append(cat)
+            else:
+                context["navbar_sub_cat_list"].append(cat.name)
+        # dashboard access
+        context["dashboard_access"] = has_perm_list(req, ["view_category_all"])
+        # add article button
+        context["can_add_article"] = has_perm_list(req, ["add_article"])
     return context
 
 
