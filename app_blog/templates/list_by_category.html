@@ -49,7 +49,7 @@
 				{% else %}
 				<th id="writer"><a href="{{ article.writer.profile.get_absolute_url }}">{{ article.writer }}</a></th>
 				{% endif %}
-				<th class="text-muted" id="created">({{ article.created }})</th>
+				<th class="text-muted" id="created">({{ article.created|date:"Y/m/d H:i:s" }})</th>
 				<th id="description">{{ article.description }}</th>
 			</tr>
 			{% endfor %}

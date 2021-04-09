@@ -43,24 +43,15 @@ def navbar_init(req):
     context = {
         "navbar_cat_list": list(),
         "navbar_sub_cat_list": list(),
-        "dashboard_access": has_perm_list(req, ["view_category_all"]),
-        "can_add_article": has_perm_list(req, ["add_article"])
+        "dashboard_access": False,
+        "can_add_article": False
     }
-    categories = Category.objects.all().order_by("id")
-    for cat in categories:
-        if cat.can_be_viewed_by(req):
-            if not cat.parent_category:
-                context["navbar_cat_list"].append(cat)
-            else:
-                context["navbar_sub_cat_list"].append(cat.name)
     if req.user.is_authenticated:
+        # get user
+        user = User.objects.get(username=req.user)
+        # get profile url
         try:
-            user = User.objects.get(username=req.user)
             context['profile_link'] = user.profile.get_absolute_url()
-        except User.DoesNotExist:
-            messages.error(
-                req, f"Utilisateur inconnu : {req.user}"
-            )
         except Profile.DoesNotExist:
             profile = Profile(user=user)
             profile.save()
@@ -69,6 +60,17 @@ def navbar_init(req):
             )
             user.refresh_from_db(fields=["profile"])
             context['profile_link'] = user.profile.get_absolute_url()
+        # get categories
+        categories = user.profile.get_visible_categories().order_by('id')
+        for cat in categories:
+            if not cat.parent_category:
+                context["navbar_cat_list"].append(cat)
+            else:
+                context["navbar_sub_cat_list"].append(cat.name)
+        # dashboard access
+        context["dashboard_access"] = has_perm_list(req, ["view_category_all"])
+        # add article button
+        context["can_add_article"] = has_perm_list(req, ["add_article"])
     return context
 
 
@@ -199,10 +201,14 @@ def add_article(req):
     and add Article to DB
     """
     error = False
+    # get user
+    user = User.objects.get(username=req.user)
+    # get visible cat
+    visible_cat = list()
+    for cat in user.profile.get_visible_categories().order_by("id"):
+        visible_cat.append(cat)
     if req.method == "POST":
         form_fields = clean_post_article_fields(req.POST.copy())
-        # get user
-        user = User.objects.get(username=req.user)
         form_fields["writer"] = user
         cat_dict = {c: None for c in form_fields.pop("cat_list")}
         for key in cat_dict.keys():
@@ -217,19 +223,19 @@ def add_article(req):
         if form.is_valid():
             article = form.save()
             for cat in cat_list:
-                cat.articles.add(article)
-                cat.save()
+                if cat in visible_cat:
+                    cat.articles.add(article)
+                    cat.save()
+                else:
+                    messages.warn(
+                        req, f"Impossible d'ajouter l'article dans {cat.name}")
             user.profile.update_meters()
             messages.success(req, 'Article ajouté !')
             return redirect(article.get_absolute_url())
         else:
             error = form.errors
-    categories = list()
-    for cat in Category.objects.all().order_by("id"):
-        if cat.can_be_viewed_by(req):
-            categories.append(cat)
     context = {
-        "categories": categories,
+        "categories": visible_cat,
         "error": error
     }
     context = {**context, **navbar_init(req)}
@@ -279,9 +285,13 @@ def edit_article(req, slug):
         messages.error(
             req, "Vous n'avez pas le droit de modifier cet article.")
         return HttpResponseNotFound()
+    user = User.objects.get(username=req.user)
+    # get visible cat
+    visible_cat = list()
+    for cat in user.profile.get_visible_categories().order_by("id"):
+        visible_cat.append(cat)
     if req.method == "POST":
         form_fields = clean_post_article_fields(req.POST.copy())
-        user = User.objects.get(username=req.user)
         form_fields["writer"] = user
         form = EditArticleForm(form_fields, instance=article)
         article.category_set.clear()
@@ -297,20 +307,20 @@ def edit_article(req, slug):
         if form.is_valid():
             article = form.save()
             for cat in cat_list:
-                cat.articles.add(article)
-                cat.save()
+                if cat in visible_cat:
+                    cat.articles.add(article)
+                    cat.save()
+                else:
+                    messages.warn(
+                        req, f"Impossible d'ajouter l'article dans {cat.name}")
             user.profile.update_meters()
             messages.success(req, "Article modifié !")
             return redirect(article.get_absolute_url())
         else:
             error = form.errors
-    categories = list()
-    for cat in Category.objects.all().order_by("id"):
-        if cat.can_be_viewed_by(req):
-            categories.append(cat)
     context = {
         "content": "".join(x for x in article.content.splitlines()),
-        "categories": categories,
+        "categories": visible_cat,
         "article": article,
         "error": error
     }
