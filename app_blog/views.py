@@ -405,32 +405,50 @@ def del_comment(req):
 @login_required
 @perm_required(['view_category_all'])
 def dashboard(req):
+    perm_list = [
+        "change_users_articles",
+        "del_users_articles",
+        "del_users_comment",
+        "change_group",
+        "block_users",
+        "view_anonymous_article"
+    ]
+    can_dict = has_perm_list(
+        req, perm_list, return_dict=True
+    )
+    if isinstance(can_dict, bool):
+        can_dict = {key: can_dict for key in perm_list}
+    can_edit_users_article = can_dict["change_users_articles"]
+    can_del_users_article = can_dict["del_users_articles"]
+    can_del_users_comment = can_dict["del_users_comment"]
+    can_change_groups = can_dict["change_group"]
+    can_block_users = can_dict["block_users"]
+    can_view_anon_article = can_dict["view_anonymous_article"]
     users = [{
         "user": user,
         "groups": "".join(f"{group.name};" for group in user.groups.all()),
     } for user in User.objects.all()]
     articles = [{
         "article": article,
-        "can_be_edited": article.can_be_edited_by(req),
-        "can_be_deleted": article.can_be_deleted_by(req),
+        "can_be_edited": can_edit_users_article,
+        "can_be_deleted": can_del_users_article,
         "categories": "".join(
             f"{cat.name};" for cat in article.category_set.all()
         )
     } for article in Article.objects.all()]
     comments = [{
         "comment": comment,
-        "can_be_deleted": comment.can_be_deleted_by(req),
+        "can_be_deleted": can_del_users_comment,
     } for comment in Comment.objects.all()]
     context = {
         "users": users,
-        "can_change_groups": has_perm_list(req, ["change_group"]),
+        "can_change_groups": can_change_groups,
         "groups": Group.objects.all(),
-        "can_block": has_perm_list(req, ["block_users"]),
+        "can_block": can_block_users,
         "articles": articles,
-        "comments": comments
+        "comments": comments,
+        "can_view_anonymous_article": can_view_anon_article
     }
-    if has_perm_list(req, ["view_anonymous_article"]):
-        context["can_view_anonymous_article"] = True
     context = {**context, **navbar_init(req)}
     return render(req, "dashboard.html", context)
 
@@ -515,7 +533,7 @@ def show_profile(req, username):
 
     class Req:
         user = user_obj.username
-    
+
     if has_perm_list(Req, ['add_article']) and len(articles):
         context["articles"] = articles
         context["can_edit_articles"] = can_edit_users_article
