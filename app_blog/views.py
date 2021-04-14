@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 
+from django.db.models import Subquery
+
 from django.http import HttpResponseNotFound, HttpResponse
 
 from django.shortcuts import render, redirect, reverse
@@ -470,7 +472,19 @@ def show_profile(req, username):
     can_block_users = can_dict["block_users"]
     can_view_anon_article = can_dict["view_anonymous_article"]
     # get articles
-    articles = Article.objects.filter(writer=user_obj)
+    if user_req.is_superuser:
+        user_req_categories = Category.objects.all()
+        articles = Article.objects.filter(writer=user_obj)
+    else:
+        user_req_categories = Category.objects.filter(
+            groups=Subquery(
+                user_req.groups.all().only('id')
+            )
+        )
+        articles = Article.objects.filter(
+            writer=user_obj,
+            category__in=user_req_categories
+        ).distinct()
     # transform QuerySet in a list of dict allowing us to use
     # Article methods
     articles = [{
@@ -480,7 +494,7 @@ def show_profile(req, username):
         "categories": "".join(
             f"{cat.name};" for cat in article.category_set.all()
         )
-    } for article in articles if article.can_be_viewed_by(req)]
+    } for article in articles]
     # get comments
     comments = Comment.objects.filter(writer=user_obj)
     # transform QuerySet in a list of dict allowing us to use
