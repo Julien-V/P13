@@ -449,14 +449,34 @@ def show_profile(req, username):
             f"Impossible de trouver le profil de l'utilisateur {username}"
         )
         return HttpResponseNotFound()
+    own_profile = user_obj == user_req
+    perm_list = [
+        "change_users_articles",
+        "del_users_articles",
+        "del_users_comment",
+        "change_group",
+        "block_users",
+        "view_anonymous_article"
+    ]
+    can_dict = has_perm_list(
+        req, perm_list, return_dict=True
+    )
+    if isinstance(can_dict, bool):
+        can_dict = {key: can_dict for key in perm_list}
+    can_edit_users_article = can_dict["change_users_articles"]
+    can_del_users_article = can_dict["del_users_articles"]
+    can_del_users_comment = can_dict["del_users_comment"]
+    can_change_groups = can_dict["change_group"]
+    can_block_users = can_dict["block_users"]
+    can_view_anon_article = can_dict["view_anonymous_article"]
     # get articles
     articles = Article.objects.filter(writer=user_obj)
     # transform QuerySet in a list of dict allowing us to use
     # Article methods
     articles = [{
         "article": article,
-        "can_be_edited": article.can_be_edited_by(req),
-        "can_be_deleted": article.can_be_deleted_by(req),
+        "can_be_edited": can_edit_users_article or own_profile,
+        "can_be_deleted": can_del_users_article or own_profile,
         "categories": "".join(
             f"{cat.name};" for cat in article.category_set.all()
         )
@@ -467,28 +487,28 @@ def show_profile(req, username):
     # comments methods
     comments = [{
         "comment": comment,
-        "can_be_deleted": comment.can_be_deleted_by(req),
-    } for comment in comments if comment.article.can_be_viewed_by(req)]
+        "can_be_deleted": can_del_users_comment or own_profile,
+    } for comment in comments if comment.article.category.all()]
     # context
     context = {
-        "can_edit_profile": user_req == user_obj,
+        "can_edit_profile": own_profile,
         "user_obj": user_obj,
-        "can_change_groups": has_perm_list(req, ["change_group"]),
-        "can_block": has_perm_list(req, ["block_users"]),
+        "can_change_groups": can_change_groups,
+        "can_block": can_block_users,
+        "can_view_anonymous_article": can_view_anon_article or own_profile,
         "groups": Group.objects.all(),
     }
 
     class Req:
         user = user_obj.username
+    
     if has_perm_list(Req, ['add_article']) and len(articles):
         context["articles"] = articles
-        context["can_edit_articles"] = articles[0]["can_be_edited"]
-        context["can_delete_articles"] = articles[0]["can_be_deleted"]
+        context["can_edit_articles"] = can_edit_users_article
+        context["can_delete_articles"] = can_del_users_article
     if has_perm_list(Req, ['add_comment']) and len(comments):
         context["comments"] = comments
-        context["can_delete_comments"] = comments[0]["can_be_deleted"]
-    if has_perm_list(req, ["view_anonymous_article"]) or user_req == user_obj:
-        context["can_view_anonymous_article"] = True
+        context["can_delete_comments"] = can_del_users_comment
 
     context = {**context, **navbar_init(req)}
     return render(req, "profile.html", context)
