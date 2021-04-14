@@ -58,6 +58,9 @@ def test_has_perm_list(make_test_users, group):
     assert t_val is True
     t_val = has_perm_list(Req, ["fake_perm"], False)
     assert t_val is not True
+    t_val = has_perm_list(Req, perms, False, return_dict=True)
+    assert isinstance(t_val, dict)
+    assert False not in t_val.values()
 
 
 @pytest.mark.django_db

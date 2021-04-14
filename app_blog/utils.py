@@ -20,12 +20,13 @@ def perm_required(perm_list):
     return decorator
 
 
-def has_perm_list(req, perm_list, check_superuser=True):
+def has_perm_list(req, perm_list, check_superuser=True, return_dict=False):
     """This function returns True if perm_list in user permissions.
 
     :param req: request object
     :param perm_list: list(), permission.codename
-    :param check_superuser: boolean, default=True
+    :param check_superuser: bool(), default=True
+    :param return_dict: bool(), default=False
 
     :return True: user.is_superuser, perm_list in user_perms
     :return False:
@@ -36,10 +37,16 @@ def has_perm_list(req, perm_list, check_superuser=True):
     if user.is_superuser and check_superuser:
         return True
     user_perms_codename = [perm.codename for perm in user_perms]
+    clearance_dict = dict()
     for perm in perm_list:
-        if perm not in user_perms_codename:
+        clearance_dict[perm] = perm in user_perms_codename
+    if return_dict:
+        return clearance_dict
+    else:
+        if False in clearance_dict.values():
             return False
-    return True
+        else:
+            return True
 
 
 def has_group_perm(req, group, check_superuser=True):
