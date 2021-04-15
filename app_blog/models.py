@@ -207,15 +207,21 @@ class Profile(models.Model):
     def get_absolute_url(self):
         return reverse("profile", args=(self.user.username,))
 
-    def get_visible_categories(self):
+    def get_visible_categories(self, only_id=False):
         """Returns a QuerySet of all categories visible by user
+
+        :param only_id: bool(), add .only('id') to QuerySet
 
         :return categories: QuerySet object
         """
         if self.user.is_superuser:
             return Category.objects.all()
         # empty QuerySet
-        categories = Group.objects.none()
+        categories = Category.objects.none()
         for group in self.user.groups.all():
-            categories = categories.union(group.category_set.all())
+            if only_id:
+                cat_group = group.category_set.all().only('id')
+            else:
+                cat_group = group.category_set.all()
+            categories = categories.union(cat_group)
         return categories

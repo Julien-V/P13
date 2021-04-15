@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
 
+from django.db.models import Subquery
+
 from django.http import HttpResponseNotFound, HttpResponse
 
 from django.shortcuts import render, redirect, reverse
@@ -67,10 +69,13 @@ def navbar_init(req):
                 context["navbar_cat_list"].append(cat)
             else:
                 context["navbar_sub_cat_list"].append(cat.name)
+        can_dict = has_perm_list(
+            req, ["view_category_all", "add_article"], return_dict=True
+        )
         # dashboard access
-        context["dashboard_access"] = has_perm_list(req, ["view_category_all"])
+        context["dashboard_access"] = can_dict["view_category_all"]
         # add article button
-        context["can_add_article"] = has_perm_list(req, ["add_article"])
+        context["can_add_article"] = can_dict["add_article"]
     return context
 
 
@@ -166,6 +171,7 @@ def about(req):
 @login_required
 def list_by_category(req, slug):
     """This view lists all articles an user can read in a category"""
+    user = User.objects.get(username=req.user)
     try:
         # get cat
         cat = Category.objects.get(slug=slug)
@@ -179,11 +185,13 @@ def list_by_category(req, slug):
         )
         return HttpResponseNotFound()
     # get articles
-    articles = list(cat.articles.all())
+    articles = list(
+        cat.articles.filter(
+            category__in=user.profile.get_visible_categories(only_id=True)
+        ).distinct()
+    )
     if not len(articles):
         articles = None
-    else:
-        articles = [x for x in articles if x.can_be_viewed_by(req)]
     context = {
         "articles": articles,
         "category": cat
@@ -403,32 +411,48 @@ def del_comment(req):
 @login_required
 @perm_required(['view_category_all'])
 def dashboard(req):
+    perm_list = [
+        "change_users_articles",
+        "del_users_articles",
+        "del_users_comment",
+        "change_group",
+        "block_users",
+        "view_anonymous_article"
+    ]
+    can_dict = has_perm_list(
+        req, perm_list, return_dict=True
+    )
+    can_edit_users_article = can_dict["change_users_articles"]
+    can_del_users_article = can_dict["del_users_articles"]
+    can_del_users_comment = can_dict["del_users_comment"]
+    can_change_groups = can_dict["change_group"]
+    can_block_users = can_dict["block_users"]
+    can_view_anon_article = can_dict["view_anonymous_article"]
     users = [{
         "user": user,
         "groups": "".join(f"{group.name};" for group in user.groups.all()),
     } for user in User.objects.all()]
     articles = [{
         "article": article,
-        "can_be_edited": article.can_be_edited_by(req),
-        "can_be_deleted": article.can_be_deleted_by(req),
+        "can_be_edited": can_edit_users_article,
+        "can_be_deleted": can_del_users_article,
         "categories": "".join(
             f"{cat.name};" for cat in article.category_set.all()
         )
     } for article in Article.objects.all()]
     comments = [{
         "comment": comment,
-        "can_be_deleted": comment.can_be_deleted_by(req),
+        "can_be_deleted": can_del_users_comment,
     } for comment in Comment.objects.all()]
     context = {
         "users": users,
-        "can_change_groups": has_perm_list(req, ["change_group"]),
+        "can_change_groups": can_change_groups,
         "groups": Group.objects.all(),
-        "can_block": has_perm_list(req, ["block_users"]),
+        "can_block": can_block_users,
         "articles": articles,
-        "comments": comments
+        "comments": comments,
+        "can_view_anonymous_article": can_view_anon_article
     }
-    if has_perm_list(req, ["view_anonymous_article"]):
-        context["can_view_anonymous_article"] = True
     context = {**context, **navbar_init(req)}
     return render(req, "dashboard.html", context)
 
@@ -449,46 +473,76 @@ def show_profile(req, username):
             f"Impossible de trouver le profil de l'utilisateur {username}"
         )
         return HttpResponseNotFound()
+    own_profile = user_obj == user_req
+    perm_list = [
+        "change_users_articles",
+        "del_users_articles",
+        "del_users_comment",
+        "change_group",
+        "block_users",
+        "view_anonymous_article"
+    ]
+    can_dict = has_perm_list(
+        req, perm_list, return_dict=True
+    )
+    can_edit_users_article = can_dict["change_users_articles"]
+    can_del_users_article = can_dict["del_users_articles"]
+    can_del_users_comment = can_dict["del_users_comment"]
+    can_change_groups = can_dict["change_group"]
+    can_block_users = can_dict["block_users"]
+    can_view_anon_article = can_dict["view_anonymous_article"]
     # get articles
-    articles = Article.objects.filter(writer=user_obj)
+    if user_req.is_superuser:
+        user_req_categories = Category.objects.all()
+        articles = Article.objects.filter(writer=user_obj)
+    else:
+        user_req_categories = Category.objects.filter(
+            groups=Subquery(
+                user_req.groups.all().only('id')
+            )
+        )
+        articles = Article.objects.filter(
+            writer=user_obj,
+            category__in=user_req_categories
+        ).distinct()
     # transform QuerySet in a list of dict allowing us to use
     # Article methods
     articles = [{
         "article": article,
-        "can_be_edited": article.can_be_edited_by(req),
-        "can_be_deleted": article.can_be_deleted_by(req),
+        "can_be_edited": can_edit_users_article or own_profile,
+        "can_be_deleted": can_del_users_article or own_profile,
         "categories": "".join(
             f"{cat.name};" for cat in article.category_set.all()
         )
-    } for article in articles if article.can_be_viewed_by(req)]
+    } for article in articles]
     # get comments
     comments = Comment.objects.filter(writer=user_obj)
     # transform QuerySet in a list of dict allowing us to use
     # comments methods
     comments = [{
         "comment": comment,
-        "can_be_deleted": comment.can_be_deleted_by(req),
-    } for comment in comments if comment.article.can_be_viewed_by(req)]
+        "can_be_deleted": can_del_users_comment or own_profile,
+    } for comment in comments if comment.article.category.all()]
     # context
     context = {
-        "can_edit_profile": user_req == user_obj,
+        "can_edit_profile": own_profile,
         "user_obj": user_obj,
-        "can_change_groups": has_perm_list(req, ["change_group"]),
-        "can_block": has_perm_list(req, ["block_users"]),
+        "can_change_groups": can_change_groups,
+        "can_block": can_block_users,
+        "can_view_anonymous_article": can_view_anon_article or own_profile,
         "groups": Group.objects.all(),
     }
 
     class Req:
         user = user_obj.username
+
     if has_perm_list(Req, ['add_article']) and len(articles):
         context["articles"] = articles
-        context["can_edit_articles"] = articles[0]["can_be_edited"]
-        context["can_delete_articles"] = articles[0]["can_be_deleted"]
+        context["can_edit_articles"] = can_edit_users_article
+        context["can_delete_articles"] = can_del_users_article
     if has_perm_list(Req, ['add_comment']) and len(comments):
         context["comments"] = comments
-        context["can_delete_comments"] = comments[0]["can_be_deleted"]
-    if has_perm_list(req, ["view_anonymous_article"]) or user_req == user_obj:
-        context["can_view_anonymous_article"] = True
+        context["can_delete_comments"] = can_del_users_comment
 
     context = {**context, **navbar_init(req)}
     return render(req, "profile.html", context)
