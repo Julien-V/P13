@@ -168,6 +168,7 @@ def about(req):
 @login_required
 def list_by_category(req, slug):
     """This view lists all articles an user can read in a category"""
+    user = User.objects.get(username=req.user)
     try:
         # get cat
         cat = Category.objects.get(slug=slug)
@@ -181,11 +182,13 @@ def list_by_category(req, slug):
         )
         return HttpResponseNotFound()
     # get articles
-    articles = list(cat.articles.all())
+    articles = list(
+        cat.articles.filter(
+            category__in=user.profile.get_visible_categories(only_id=True)
+        ).distinct()
+    )
     if not len(articles):
         articles = None
-    else:
-        articles = [x for x in articles if x.can_be_viewed_by(req)]
     context = {
         "articles": articles,
         "category": cat
