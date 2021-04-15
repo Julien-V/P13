@@ -41,7 +41,7 @@
 			        	{% for sub_cat in cat.sub_category.all|order_by_id %}
 						{% if sub_cat.name in navbar_sub_cat_list %}
 			          	<li>
-			          		<a class="dropdown-item" href="{{ sub_cat.get_absolute_url }}">{{ sub_cat.name }}</a>
+			          		<a class="dropdown-item" href="{% url 'category' sub_cat.slug %}">{{ sub_cat.name }}</a>
 			          	</li>
 						{% endif %}
 			          	{% endfor %}

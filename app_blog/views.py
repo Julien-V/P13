@@ -69,10 +69,13 @@ def navbar_init(req):
                 context["navbar_cat_list"].append(cat)
             else:
                 context["navbar_sub_cat_list"].append(cat.name)
+        can_dict = has_perm_list(
+            req, ["view_category_all", "add_article"], return_dict=True
+        )
         # dashboard access
-        context["dashboard_access"] = has_perm_list(req, ["view_category_all"])
+        context["dashboard_access"] = can_dict["view_category_all"]
         # add article button
-        context["can_add_article"] = has_perm_list(req, ["add_article"])
+        context["can_add_article"] = can_dict["add_article"]
     return context
 
 
