@@ -30,12 +30,19 @@ def has_perm_list(req, perm_list, check_superuser=True, return_dict=False):
 
     :return True: user.is_superuser, perm_list in user_perms
     :return False:
+    :return clearance_dict: dict(), {perm: bool() for perm in perm_list}
     """
     user, groups, user_perms = get_user_groups_perm(req)
     if user is None:
-        return False
+        if return_dict:
+            return {perm: False for perm in perm_list}
+        else:
+            return False
     if user.is_superuser and check_superuser:
-        return True
+        if return_dict:
+            return {perm: True for perm in perm_list}
+        else:
+            return True
     user_perms_codename = [perm.codename for perm in user_perms]
     clearance_dict = dict()
     for perm in perm_list:

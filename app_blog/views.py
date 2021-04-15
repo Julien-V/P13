@@ -422,8 +422,6 @@ def dashboard(req):
     can_dict = has_perm_list(
         req, perm_list, return_dict=True
     )
-    if isinstance(can_dict, bool):
-        can_dict = {key: can_dict for key in perm_list}
     can_edit_users_article = can_dict["change_users_articles"]
     can_del_users_article = can_dict["del_users_articles"]
     can_del_users_comment = can_dict["del_users_comment"]
@@ -487,8 +485,6 @@ def show_profile(req, username):
     can_dict = has_perm_list(
         req, perm_list, return_dict=True
     )
-    if isinstance(can_dict, bool):
-        can_dict = {key: can_dict for key in perm_list}
     can_edit_users_article = can_dict["change_users_articles"]
     can_del_users_article = can_dict["del_users_articles"]
     can_del_users_comment = can_dict["del_users_comment"]
