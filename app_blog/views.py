@@ -522,7 +522,7 @@ def show_profile(req, username):
     comments = [{
         "comment": comment,
         "can_be_deleted": can_del_users_comment or own_profile,
-    } for comment in comments if comment.article.category.all()]
+    } for comment in comments if comment.article.category_set.all()]
     # context
     context = {
         "can_edit_profile": own_profile,
