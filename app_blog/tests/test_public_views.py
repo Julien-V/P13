@@ -47,8 +47,7 @@ def test_log_in(
     assert response.url == expected_redirect_url
 
 
-@pytest.mark.django_db
-def test_sign_up(client):
+class TestSignUp:
     fields = {
         "first_name": "test_first_name",
         "last_name": "test_last_name",
@@ -57,21 +56,44 @@ def test_sign_up(client):
         "password1": "password_test",
         "password2": "password_test"
     }
-    response = client.get(reverse("sign_up"))
-    assert response.status_code == 200
-    # get csrf_token from cookie
-    csrf_token = client.cookies['csrftoken'].value
-    fields["csrftoken"] = csrf_token
-    response = client.post(reverse("sign_up"), fields)
-    assert response.status_code == 302
-    assert response.url == "/login"
-    try:
-        user = User.objects.get(username=fields["username"])
-        Profile.objects.get(user=user)
-    except User.DoesNotExist:
-        pytest.fail("User DoesNotExist")
-    except Profile.DoesNotExist:
-        pytest.fail("Profile DoesNotExist")
-    groups = user.groups.all()
-    groups_name = [group.name for group in groups]
-    assert "Abonné" in groups_name
+
+    @pytest.mark.django_db
+    def get_csrf(self, client):
+        response = client.get(reverse("sign_up"))
+        assert response.status_code == 200
+        csrf_token = client.cookies['csrftoken'].value
+        self.fields["csrftoken"] = csrf_token
+
+    @pytest.mark.django_db
+    def test_valid_sign_up(self, client):
+        self.get_csrf(client)
+        response = client.post(reverse("sign_up"), self.fields)
+        assert response.status_code == 302
+        assert response.url == "/login"
+
+    @pytest.mark.django_db
+    def test_valid_sign_up_profile(self, client):
+        self.test_valid_sign_up(client)
+        try:
+            user = User.objects.get(username=self.fields["username"])
+            Profile.objects.get(user=user)
+        except User.DoesNotExist:
+            pytest.fail("User DoesNotExist")
+        except Profile.DoesNotExist:
+            pytest.fail("Profile DoesNotExist")
+        groups = user.groups.all()
+        groups_name = [group.name for group in groups]
+        assert "Abonné" in groups_name
+
+    @pytest.mark.django_db
+    def test_invalid_sign_up(self, client):
+        self.get_csrf(client)
+        fields = self.fields.copy()
+        fields["username"] = fields["username"].replace("_", " ")
+        response = client.post(reverse("sign_up"), fields)
+        assert response.status_code == 200
+        html = response.content.decode()
+        assert "errorlist" in html
+        div_alert = """<div class="alert alert-danger """
+        div_alert += """alert-dismissible fade show" role="alert">"""
+        assert div_alert in html
