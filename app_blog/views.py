@@ -127,28 +127,27 @@ def log_in(req):
 def sign_up(req):
     error = False
     if req.method == "POST":
-        form = RegisterForm(req.POST)
+        fields = req.POST.copy()
+        form = RegisterForm(fields)
         if form.is_valid():
-            temp = req.POST.copy()
-            form = RegisterForm(temp)
-            if form.is_valid():
-                form.save()
-                try:
-                    user = User.objects.get(username=temp["username"])
-                    group = Group.objects.get(name="Abonné")
-                    user.groups.add(group)
-                    user.save()
-                    profile = Profile(user=user)
-                    profile.save()
-                    messages.success(
-                        req, f"Nouvel utilisateur {user.username} ajouté.")
-                    return redirect(reverse('login'))
-                except User.DoesNotExist:
-                    error = 'user created but DoesNotExist'
-                except Group.DoesNotExist:
-                    error = 'group "Abonné" DoesNotExist'
-            else:
-                error = form.errors
+            form.save()
+            try:
+                user = User.objects.get(username=fields["username"])
+                group = Group.objects.get(name="Abonné")
+                user.groups.add(group)
+                user.save()
+                profile = Profile(user=user)
+                profile.save()
+                messages.success(
+                    req, f"Nouvel utilisateur {user.username} ajouté.")
+                return redirect(reverse('login'))
+            except User.DoesNotExist:
+                error = 'user created but DoesNotExist'
+            except Group.DoesNotExist:
+                error = 'group "Abonné" DoesNotExist'
+        else:
+            error = form.errors
+            messages.error(req, error)
     else:
         form = RegisterForm()
     context = {
@@ -497,10 +496,10 @@ def show_profile(req, username):
         articles = Article.objects.filter(writer=user_obj)
     else:
         user_req_categories = Category.objects.filter(
-            groups=Subquery(
+            groups__in=Subquery(
                 user_req.groups.all().only('id')
             )
-        )
+        ).distinct()
         articles = Article.objects.filter(
             writer=user_obj,
             category__in=user_req_categories

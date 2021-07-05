@@ -502,3 +502,8 @@ p#about-us {
 .tab-pane {
   padding-top: 2%;
 }
+
+#profile-picture {
+  width: inherit;
+  margin-bottom: 1%;
+}
