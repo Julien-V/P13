@@ -255,20 +255,47 @@ def show_article(req, slug):
     """This views gets an article from its slug,
     checks if current user can view this article and renders it.
     """
+    user = User.objects.get(username=req.user)
     try:
         article = Article.objects.get(slug=slug)
     except Article.DoesNotExist:
         return HttpResponseNotFound()
-    if not article.can_be_viewed_by(req):
+    # reducing number of db transaction :
+    is_owner = user == article.writer
+    perm_list = [
+        "change_users_articles",
+        "del_users_articles",
+        "del_users_comment"
+    ]
+    has_perm = has_perm_list(req, perm_list, return_dict=True)
+    can_be_edited = is_owner or has_perm["change_users_articles"]
+    can_be_deleted = is_owner or has_perm["del_users_articles"]
+    can_del_comments = has_perm["del_users_comment"]
+    if not user.is_superuser:
+        user_cat = Category.objects.filter(
+            groups__in=Subquery(
+                user.groups.all().only('id')
+            )
+        ).distinct()
+        article_cat = list(article.category_set.all())
+        clearance_list = [
+            cat in list(user_cat) for cat in article_cat
+        ]
+    else:
+        clearance_list = [True]
+    if False in clearance_list:
+        messages.error(
+            req,
+            "Vous n'avez pas le droit de lire cet article.")
         return HttpResponseNotFound()
     comments = [{
         "comment": comment,
-        "can_be_deleted": comment.can_be_deleted_by(req),
+        "can_be_deleted": comment.writer == is_owner or can_del_comments,
     } for comment in article.comment_set.all()]
     context = {
         "article": article,
-        "can_be_edited_by_user": article.can_be_edited_by(req),
-        "can_be_deleted_by_user": article.can_be_deleted_by(req),
+        "can_be_edited_by_user": can_be_edited,
+        "can_be_deleted_by_user": can_be_deleted,
         "content": unescape(article.content),
         "comments": comments
     }
