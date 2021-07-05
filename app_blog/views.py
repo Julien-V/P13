@@ -496,10 +496,10 @@ def show_profile(req, username):
         articles = Article.objects.filter(writer=user_obj)
     else:
         user_req_categories = Category.objects.filter(
-            groups=Subquery(
+            groups__in=Subquery(
                 user_req.groups.all().only('id')
             )
-        )
+        ).distinct()
         articles = Article.objects.filter(
             writer=user_obj,
             category__in=user_req_categories
